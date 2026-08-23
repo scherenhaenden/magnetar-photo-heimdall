@@ -1,0 +1,15 @@
+# Build output
+bin/
+obj/
+artifacts/
+
+# Local app data and test libraries
+.heimdall/
+*.db
+*.db-shm
+*.db-wal
+
+# IDE and OS state
+.vs/
+.idea/
+.DS_Store
