@@ -58,7 +58,7 @@ try
     Assert(pass1.FullHash == pass2.FullHash, "FullHash must be deterministic");
     Assert(pass1.QuickFingerprint == pass2.QuickFingerprint, "QuickFingerprint must be deterministic");
     Assert(pass1.FileLength == pass2.FileLength, "FileLength must be consistent");
-    Assert(pass1.Version == 1, "Version must be 1");
+    Assert(pass1.QuickFingerprintVersion == 1, "Quick fingerprint version must be 1");
     Assert(pass1.Algorithm == "BLAKE3", "Algorithm must be BLAKE3");
     Console.WriteLine("  ✓ PASS: BLAKE3 hashes are deterministic.");
 
@@ -83,8 +83,46 @@ try
     Assert(largeHash.FullHash != largeHash.QuickFingerprint, "For >2MB file, FullHash and QuickFingerprint must differ");
     Console.WriteLine("  ✓ PASS: Large file streaming BLAKE3 hashing verified.");
 
-    // Test 6: Dependency Injection registration
-    Console.WriteLine("Running Test 6: DI registration...");
+    // Test 6: Corrupt EXIF does not interrupt cataloguing; it falls back safely.
+    Console.WriteLine("Running Test 6: Corrupt EXIF fallback...");
+    var corruptExifPath = Path.Combine(tempDir, "corrupt_exif.jpg");
+    await File.WriteAllBytesAsync(corruptExifPath,
+    [
+        0xFF, 0xD8, 0xFF, 0xE1, 0x00, 0x10,
+        .. Encoding.ASCII.GetBytes("Exif\0\0II*\0\x08\0"),
+        0xFF, 0xD9,
+    ]);
+    var corruptExif = await reader.ReadCaptureDateAsync(corruptExifPath);
+    Assert(corruptExif.Source == DateSource.FilesystemMtime, "Corrupt EXIF must fall back to filesystem mtime");
+    Assert(corruptExif.AllEvidence[0].Source == DateSource.ExifDateTimeOriginal, "EXIF evidence must be retained for corrupt metadata");
+    Console.WriteLine("  ✓ PASS: Corrupt EXIF is contained and falls back safely.");
+
+    // Test 7: XML XMP is parsed structurally, without date-looking text matching.
+    Console.WriteLine("Running Test 7: XMP XML metadata...");
+    var xmpPath = Path.Combine(tempDir, "sample.xmp");
+    await File.WriteAllTextAsync(xmpPath, """
+        <x:xmpmeta xmlns:x="adobe:ns:meta/">
+          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+            <rdf:Description xmlns:xmp="http://ns.adobe.com/xap/1.0/" xmp:CreateDate="2023-04-05T06:07:08+02:00" />
+          </rdf:RDF>
+        </x:xmpmeta>
+        """);
+    var xmp = await reader.ReadCaptureDateAsync(xmpPath);
+    Assert(xmp.Source == DateSource.Xmp, "XML XMP CreateDate must win after absent EXIF");
+    Assert(xmp.Value == new DateTimeOffset(2023, 4, 5, 4, 7, 8, TimeSpan.Zero), "XMP timezone conversion mismatch");
+    Console.WriteLine("  ✓ PASS: XML XMP CreateDate extracted successfully.");
+
+    // Test 8: Version-1 QuickTime mvhd at the end of a file is discovered by the bounded scan.
+    Console.WriteLine("Running Test 8: Late QuickTime mvhd v1...");
+    var quickTimePath = Path.Combine(tempDir, "late-v1.mov");
+    await CreateLateQuickTimeV1Async(quickTimePath, new DateTimeOffset(2022, 2, 3, 4, 5, 6, TimeSpan.Zero));
+    var quickTime = await reader.ReadCaptureDateAsync(quickTimePath);
+    Assert(quickTime.Source == DateSource.QuickTime, "Late mvhd v1 must be resolved as QuickTime");
+    Assert(quickTime.Value == new DateTimeOffset(2022, 2, 3, 4, 5, 6, TimeSpan.Zero), "QuickTime v1 timestamp mismatch");
+    Console.WriteLine("  ✓ PASS: Late QuickTime mvhd v1 extracted successfully.");
+
+    // Test 9: Dependency Injection registration
+    Console.WriteLine("Running Test 9: DI registration...");
     var services = new ServiceCollection();
     services.AddMediaAnalysis();
     var sp = services.BuildServiceProvider();
@@ -97,7 +135,7 @@ try
     Assert(diHasher is Blake3ContentHasher, "Hasher should be Blake3ContentHasher");
     Console.WriteLine("  ✓ PASS: Dependency Injection services correctly registered.");
 
-    Console.WriteLine("\nALL TESTS PASSED SUCCESSFULLY! (6/6)");
+    Console.WriteLine("\nALL TESTS PASSED SUCCESSFULLY! (9/9)");
     return 0;
 }
 finally
@@ -183,4 +221,24 @@ static void CreateJpegWithExif(string outputPath, string dateOriginalStr)
     bw.Write((byte)0xD9);
 
     File.WriteAllBytes(outputPath, ms.ToArray());
+}
+
+static async Task CreateLateQuickTimeV1Async(string outputPath, DateTimeOffset timestamp)
+{
+    const int fillerBytes = 2 * 1024 * 1024;
+    const long quickTimeEpochOffset = 2_082_844_800L;
+    var seconds = checked((ulong)(timestamp.ToUnixTimeSeconds() + quickTimeEpochOffset));
+
+    await using var stream = new FileStream(outputPath, FileMode.CreateNew, FileAccess.Write, FileShare.None, 64 * 1024, FileOptions.Asynchronous);
+    await stream.WriteAsync(new byte[fillerBytes]);
+
+    // A version-1 mvhd atom past 1 MiB proves scanning is not prefix-limited.
+    var atom = new byte[40];
+    System.Buffers.Binary.BinaryPrimitives.WriteUInt32BigEndian(atom.AsSpan(0, 4), 40);
+    Encoding.ASCII.GetBytes("mvhd").CopyTo(atom, 4);
+    atom[8] = 1;
+    System.Buffers.Binary.BinaryPrimitives.WriteUInt64BigEndian(atom.AsSpan(12, 8), seconds);
+    System.Buffers.Binary.BinaryPrimitives.WriteUInt64BigEndian(atom.AsSpan(20, 8), seconds);
+    System.Buffers.Binary.BinaryPrimitives.WriteUInt32BigEndian(atom.AsSpan(28, 4), 1_000);
+    await stream.WriteAsync(atom);
 }
