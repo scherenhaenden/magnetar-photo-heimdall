@@ -1,6 +1,7 @@
-namespace Magnetar.Photo.Heimdall.DataAccess.IO;
+using Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Models;
+using Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Mappers;
 
-public sealed record DiscoveredMediaFile(string FullPath, string RelativePath, long Length, DateTimeOffset LastWriteUtc);
+namespace Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Services;
 
 public interface IMediaFileScanner
 {
@@ -28,7 +29,7 @@ public sealed class PhysicalMediaFileScanner : IMediaFileScanner
             }
 
             var info = new FileInfo(path);
-            yield return new DiscoveredMediaFile(info.FullName, Path.GetRelativePath(root, info.FullName), info.Length, info.LastWriteTimeUtc);
+            yield return DiscoveredMediaFileMapper.FromFileInfo(root, info);
             await Task.Yield();
         }
     }

@@ -1,4 +1,7 @@
-namespace Magnetar.Photo.Heimdall.RemoteContracts;
+using Magnetar.Photo.Heimdall.RemoteContracts.Domains.RemoteAgent.Models;
+using Magnetar.Photo.Heimdall.RemoteContracts.Domains.RemoteAgent.Mappers;
+
+namespace Magnetar.Photo.Heimdall.RemoteContracts.Domains.RemoteAgent.Services;
 
 // ---------------------------------------------------------------------------
 // Internal controller state (superset of public ThermalState contract enum)
@@ -188,5 +191,5 @@ public sealed class UnavailableThermalProvider
 
     /// <summary>Always returns an Unavailable snapshot with an empty reading list.</summary>
     public ThermalSnapshot GetSnapshot() =>
-        new(TelemetryAvailability.Unavailable, DateTimeOffset.UtcNow, [], _reason);
+        ThermalSnapshotMapper.Unavailable(_reason, DateTimeOffset.UtcNow);
 }

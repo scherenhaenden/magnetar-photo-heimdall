@@ -1,4 +1,4 @@
-namespace Magnetar.Photo.Heimdall.RemoteContracts;
+namespace Magnetar.Photo.Heimdall.RemoteContracts.Domains.RemoteAgent.Models;
 
 // ---------------------------------------------------------------------------
 // Protocol versioning

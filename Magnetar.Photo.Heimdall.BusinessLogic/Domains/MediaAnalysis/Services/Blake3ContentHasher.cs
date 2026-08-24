@@ -1,7 +1,8 @@
 using Blake3;
+using Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Models;
 using System.Text;
 
-namespace Magnetar.Photo.Heimdall.MediaAnalysis;
+namespace Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Services;
 
 /// <summary>
 /// Computes BLAKE3 content hashes for media files using streaming I/O.
