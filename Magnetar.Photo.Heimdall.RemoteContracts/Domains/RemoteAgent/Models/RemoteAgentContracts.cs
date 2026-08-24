@@ -1,4 +1,4 @@
-namespace Magnetar.Photo.Heimdall.RemoteContracts;
+namespace Magnetar.Photo.Heimdall.RemoteContracts.Domains.RemoteAgent.Models;
 
 // ---------------------------------------------------------------------------
 // Protocol versioning
@@ -142,9 +142,11 @@ public sealed record WorkloadPolicy(
 {
     public void Validate()
     {
-        if (WarningCelsius >= HighCelsius
+        if (WarningCelsius <= 0
+            || WarningCelsius >= HighCelsius
             || HighCelsius >= CriticalCelsius
             || HysteresisCelsius < 0
+            || HysteresisCelsius >= WarningCelsius
             || MinimumCoolingDuration < TimeSpan.Zero
             || ReadingStalenessWindow <= TimeSpan.Zero
             || NormalConcurrency < 1
@@ -279,6 +281,7 @@ public static class RemotePath
     {
         if (string.IsNullOrWhiteSpace(path) || path.Length > 4096
             || Path.IsPathRooted(path)
+            || IsWindowsDriveQualified(path)
             || path.Contains('\\')
             || path.Contains('\0'))
         {
@@ -293,6 +296,9 @@ public static class RemotePath
                 "Path traversal sequences ('..'), empty segments, and '.' are not allowed.");
         }
     }
+
+    private static bool IsWindowsDriveQualified(string path) =>
+        path.Length >= 3 && char.IsAsciiLetter(path[0]) && path[1] == ':' && path[2] == '/';
 }
 
 // ---------------------------------------------------------------------------

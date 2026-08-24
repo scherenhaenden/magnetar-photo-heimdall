@@ -1,4 +1,7 @@
-namespace Magnetar.Photo.Heimdall.RemoteContracts;
+using Magnetar.Photo.Heimdall.RemoteContracts.Domains.RemoteAgent.Models;
+using Magnetar.Photo.Heimdall.RemoteContracts.Domains.RemoteAgent.Mappers;
+
+namespace Magnetar.Photo.Heimdall.RemoteContracts.Domains.RemoteAgent.Services;
 
 // ---------------------------------------------------------------------------
 // Internal controller state (superset of public ThermalState contract enum)
@@ -31,19 +34,19 @@ internal enum ThermalControllerState
 ///
 /// Rules enforced:
 ///   - Never executes remote shell commands.
-///   - Readings older than WorkloadPolicy.ReadingStalenessWindow are treated as Unavailable.
+///   - Missing, stale, future-dated or physically invalid readings are treated as Unavailable.
 ///   - In Critical: EffectiveConcurrency = 0, AcceptNewWork = false.
 ///   - In Cooling: stays until both conditions hold:
 ///       (a) temperature less than WarningCelsius - HysteresisCelsius, AND
-///       (b) at least MinimumCoolingDuration has elapsed since entering Critical.
-///   - Unavailable: concurrency is capped at HighConcurrency as a safe default;
-///       new work is still accepted (system is assumed safe, not hot).
+///       (b) that safe temperature remains continuous for MinimumCoolingDuration.
+///   - Unavailable: blocks new work because heat cannot be trusted.
 ///   - The controller is not thread-safe; synchronise externally if needed.
 /// </summary>
 public sealed class ThermalWorkloadController
 {
     private readonly WorkloadPolicy _policy;
     private DateTimeOffset? _criticalSince;
+    private DateTimeOffset? _safeSince;
     private ThermalControllerState _state = ThermalControllerState.Unavailable;
 
     public ThermalWorkloadController(WorkloadPolicy policy)
@@ -72,18 +75,19 @@ public sealed class ThermalWorkloadController
     /// </summary>
     public WorkloadDecision Observe(ThermalSnapshot snapshot, DateTimeOffset now)
     {
-        // Unavailable: no sensor, permission denied, or all readings are stale.
-        if (snapshot.Availability == TelemetryAvailability.Unavailable
-            || snapshot.Readings.Count == 0
-            || AllReadingsStale(snapshot.Readings, now))
+        if (!HasUsableTelemetry(snapshot, now))
         {
+            if (_criticalSince is not null)
+            {
+                _safeSince = null;
+                _state = ThermalControllerState.Cooling;
+                return Decision(ThermalState.Critical, 0, false,
+                    snapshot.Reason ?? "Thermal telemetry is unavailable while cooling is required.");
+            }
+
             _state = ThermalControllerState.Unavailable;
-            var unavailReason = snapshot.Reason
-                ?? (snapshot.Readings.Count > 0
-                    ? "All readings exceeded the staleness window."
-                    : "Thermal telemetry is unavailable.");
-            // Conservative limit — not zero, because we cannot confirm heat.
-            return Decision(ThermalState.Unavailable, _policy.HighConcurrency, true, unavailReason);
+            return Decision(ThermalState.Unavailable, 0, false,
+                snapshot.Reason ?? "Thermal telemetry is unavailable, stale, future-dated, or invalid.");
         }
 
         var peak = snapshot.Readings.Max(r => r.Celsius);
@@ -92,26 +96,36 @@ public sealed class ThermalWorkloadController
         if (peak >= _policy.CriticalCelsius)
         {
             _criticalSince ??= now;
+            _safeSince = null;
             _state = ThermalControllerState.Critical;
             return Decision(ThermalState.Critical, 0, false,
                 $"Critical thermal threshold ({_policy.CriticalCelsius} C) reached: peak {peak} C.");
         }
 
         // ---- Cooling hysteresis ----
-        if (_state is ThermalControllerState.Critical or ThermalControllerState.Cooling)
+        if (_criticalSince is not null)
         {
             var coolTarget = _policy.WarningCelsius - _policy.HysteresisCelsius;
-            var elapsed = now - _criticalSince!.Value;
+            if (peak >= coolTarget)
+            {
+                _safeSince = null;
+                _state = ThermalControllerState.Cooling;
+                return Decision(ThermalState.Critical, 0, false,
+                    $"Cooling: peak {peak} C must be below {coolTarget} C.");
+            }
 
-            if (peak >= coolTarget || elapsed < _policy.MinimumCoolingDuration)
+            _safeSince ??= now;
+            var safeElapsed = now - _safeSince.Value;
+            if (safeElapsed < _policy.MinimumCoolingDuration)
             {
                 _state = ThermalControllerState.Cooling;
                 return Decision(ThermalState.Critical, 0, false,
-                    $"Cooling: peak {peak} C (target < {coolTarget} C), elapsed {elapsed.TotalSeconds:F0}s of {_policy.MinimumCoolingDuration.TotalSeconds:F0}s minimum.");
+                    $"Cooling: safe for {safeElapsed.TotalSeconds:F0}s of {_policy.MinimumCoolingDuration.TotalSeconds:F0}s minimum.");
             }
 
             // Hysteresis satisfied — reset and fall through to normal classification.
             _criticalSince = null;
+            _safeSince = null;
         }
 
         // ---- Normal classification ----
@@ -133,8 +147,19 @@ public sealed class ThermalWorkloadController
         };
     }
 
-    private bool AllReadingsStale(IReadOnlyList<ThermalReading> readings, DateTimeOffset now)
-        => readings.All(r => now - r.ObservedAt > _policy.ReadingStalenessWindow);
+    private bool HasUsableTelemetry(ThermalSnapshot snapshot, DateTimeOffset now)
+    {
+        if (snapshot.Availability == TelemetryAvailability.Unavailable || snapshot.Readings.Count == 0)
+        {
+            return false;
+        }
+
+        return IsCurrent(snapshot.ObservedAt, now) && snapshot.Readings.All(reading =>
+            reading.Celsius >= -273.15m && reading.Confidence is >= 0 and <= 1 && IsCurrent(reading.ObservedAt, now));
+    }
+
+    private bool IsCurrent(DateTimeOffset observedAt, DateTimeOffset now) =>
+        observedAt <= now && now - observedAt <= _policy.ReadingStalenessWindow;
 
     private static WorkloadDecision Decision(
         ThermalState state, int concurrency, bool accept, string reason)
@@ -166,5 +191,5 @@ public sealed class UnavailableThermalProvider
 
     /// <summary>Always returns an Unavailable snapshot with an empty reading list.</summary>
     public ThermalSnapshot GetSnapshot() =>
-        new(TelemetryAvailability.Unavailable, DateTimeOffset.UtcNow, [], _reason);
+        ThermalSnapshotMapper.Unavailable(_reason, DateTimeOffset.UtcNow);
 }
