@@ -1,0 +1,94 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Magnetar.Photo.Heimdall.Desktop.Views.LibrariesView">
+  <UserControl.Styles>
+    <Style Selector="Border.library-panel">
+      <Setter Property="Background" Value="#B30D1C2D" />
+      <Setter Property="BorderBrush" Value="#263B494C" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+    </Style>
+    <Style Selector="TextBlock.table-header">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="#BAC9CC" />
+    </Style>
+    <Style Selector="TextBlock.path">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="Foreground" Value="#849396" />
+    </Style>
+  </UserControl.Styles>
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Margin="24" Spacing="20" MaxWidth="1280">
+      <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,4">
+        <StackPanel Spacing="5">
+          <TextBlock Text="Source Libraries" FontSize="32" FontWeight="SemiBold" Foreground="#D4E4FA" />
+          <TextBlock Text="Gestiona volúmenes locales, mounts y fuentes remotas SSH." Foreground="#BAC9CC" />
+        </StackPanel>
+        <Button Grid.Column="1" Content="Filtrar" VerticalAlignment="Bottom" IsEnabled="False" ToolTip.Tip="Filtro disponible cuando el catálogo pueda listar bibliotecas." />
+      </Grid>
+
+      <Border Classes="library-panel" Padding="0">
+        <Grid RowDefinitions="Auto,Auto,Auto" Margin="0">
+          <Grid ColumnDefinitions="3*,*,*,*,*,Auto" ColumnSpacing="12" Background="#801C2B3C" Margin="16">
+            <TextBlock Classes="table-header" Text="BIBLIOTECA / RUTA" />
+            <TextBlock Grid.Column="1" Classes="table-header" Text="ESTADO" />
+            <TextBlock Grid.Column="2" Classes="table-header" Text="CAPACIDAD" />
+            <TextBlock Grid.Column="3" Classes="table-header" Text="ACTIVOS" />
+            <TextBlock Grid.Column="4" Classes="table-header" Text="ÚLTIMO SCAN" />
+            <TextBlock Grid.Column="5" Classes="table-header" Text="ACCIONES" />
+          </Grid>
+          <Border Grid.Row="1" Height="1" Background="#263B494C" />
+          <Grid Grid.Row="2" ColumnDefinitions="3*,*,*,*,*,Auto" ColumnSpacing="12" Margin="16" IsVisible="{Binding HasCataloguedCount}">
+            <StackPanel Spacing="3">
+              <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="#D4E4FA" />
+              <TextBlock Classes="path" Text="{Binding RootPath}" TextTrimming="CharacterEllipsis" MaxWidth="380" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6"><Ellipse Width="8" Height="8" Fill="#00E5FF" VerticalAlignment="Center" /><TextBlock Text="Local" Foreground="#00E5FF" /></StackPanel>
+            <TextBlock Grid.Column="2" Text="—" Foreground="#BAC9CC" />
+            <TextBlock Grid.Column="3" Text="{Binding CataloguedCount}" Foreground="#D4E4FA" />
+            <TextBlock Grid.Column="4" Text="Ahora" Foreground="#BAC9CC" />
+            <Button Grid.Column="5" Content="Escanear" Command="{Binding AddAndScanCommand}" />
+          </Grid>
+        </Grid>
+      </Border>
+
+      <Border Classes="library-panel" Padding="20">
+        <StackPanel Spacing="16">
+          <StackPanel Spacing="4">
+            <TextBlock Text="Añadir biblioteca local" FontSize="18" FontWeight="SemiBold" Foreground="#D4E4FA" />
+            <TextBlock Text="El primer escaneo es de solo lectura: Heimdall no mueve, modifica ni borra archivos." Foreground="#BAC9CC" />
+          </StackPanel>
+          <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+            <StackPanel Spacing="6">
+              <TextBlock Text="Nombre" Foreground="#D4E4FA" />
+              <TextBox Text="{Binding DisplayName}" Watermark="Archivo principal" IsEnabled="{Binding IsInputEnabled}" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="6">
+              <TextBlock Text="Ruta" Foreground="#D4E4FA" />
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <TextBox Text="{Binding RootPath}" Watermark="/Volumes/Archivo/Fotos" IsEnabled="{Binding IsInputEnabled}" />
+                <Button Grid.Column="1" Content="Elegir carpeta…" Command="{Binding ChooseFolderCommand}" />
+              </Grid>
+            </StackPanel>
+          </Grid>
+          <ProgressBar IsVisible="{Binding IsBusy}" IsIndeterminate="True" Height="4" />
+          <Border IsVisible="{Binding HasError}" Background="#3393000A" BorderBrush="#FFB4AB" BorderThickness="1" CornerRadius="4" Padding="12">
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="#FFB4AB" TextWrapping="Wrap" />
+          </Border>
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <TextBlock Text="{Binding StatusMessage}" Foreground="#BAC9CC" VerticalAlignment="Center" TextWrapping="Wrap" />
+            <Button Grid.Column="1" Content="Añadir y escanear" Command="{Binding AddAndScanCommand}" MinWidth="176" />
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <Border Classes="library-panel" Padding="16" Background="#660D1C2D">
+        <StackPanel Spacing="5">
+          <TextBlock Text="Fuentes de ejemplo — backend pendiente" FontSize="11" FontWeight="SemiBold" Foreground="#849396" />
+          <TextBlock Text="NAS Studio · ssh://nas-studio · Syncing (SSH)     |     SSD Import · /Volumes/SSD_EXT · Mount (solo lectura)" Foreground="#BAC9CC" TextWrapping="Wrap" />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>
