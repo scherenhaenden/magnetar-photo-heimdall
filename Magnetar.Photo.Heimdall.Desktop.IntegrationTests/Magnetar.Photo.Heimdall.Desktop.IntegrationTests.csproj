@@ -14,13 +14,13 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.11" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Magnetar.Photo.Heimdall.Desktop/Magnetar.Photo.Heimdall.Desktop.csproj" />
     <ProjectReference Include="../Magnetar.Photo.Heimdall.PresentationLogic/Magnetar.Photo.Heimdall.PresentationLogic.csproj" />
     <ProjectReference Include="../Magnetar.Photo.Heimdall.BusinessLogic/Magnetar.Photo.Heimdall.BusinessLogic.csproj" />
     <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess/Magnetar.Photo.Heimdall.DataAccess.csproj" />
-    <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess.IO/Magnetar.Photo.Heimdall.DataAccess.IO.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="../Magnetar.Photo.Heimdall.Desktop/Design/HeimdallShell.axaml"
