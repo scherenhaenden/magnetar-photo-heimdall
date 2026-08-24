@@ -35,3 +35,14 @@ later if measurements justify it. A Rust rewrite is not a prerequisite.
    versioned localhost or CLI contract.
 
 See [analysis](docs/ANALYSIS.md) and the [architecture](docs/ARCHITECTURE.md).
+
+## Functional product specification
+
+The legacy `Photos` experiments and `Photos/PhotoLibrarizer` contain the
+behaviour that Heimdall must consolidate. Their user-facing requirements are
+documented individually in [docs/features/README.md](docs/features/README.md).
+Those documents are specifications for Heimdall, not a promise to preserve the
+legacy implementation or its unsafe file mutations.
+
+Performance-critical components and the evidence required before moving one
+from .NET to Rust are indexed in [docs/performance/README.md](docs/performance/README.md).

@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="Magnetar.Photo.Heimdall.BusinessLogic/Magnetar.Photo.Heimdall.BusinessLogic.csproj" />
+  <Project Path="Magnetar.Photo.Heimdall.DataAccess.IO/Magnetar.Photo.Heimdall.DataAccess.IO.csproj" />
+  <Project Path="Magnetar.Photo.Heimdall.DataAccess/Magnetar.Photo.Heimdall.DataAccess.csproj" />
+  <Project Path="Magnetar.Photo.Heimdall.Host/Magnetar.Photo.Heimdall.Host.csproj" />
+  <Project Path="Magnetar.Photo.Heimdall.IntegrationTests/Magnetar.Photo.Heimdall.IntegrationTests.csproj" />
+  <Project Path="Magnetar.Photo.Heimdall.PresentationLogic/Magnetar.Photo.Heimdall.PresentationLogic.csproj" />
+</Solution>
