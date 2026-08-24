@@ -1,9 +1,10 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Magnetar.Photo.Heimdall.Desktop.Views.MainWindow"
-        Width="740" Height="520" MinWidth="540" MinHeight="400"
+        Width="1180" Height="760" MinWidth="920" MinHeight="580"
         Title="Heimdall — Photo Libraries">
 
+  <ContentControl Theme="{StaticResource HeimdallShell}">
   <ScrollViewer>
     <StackPanel Margin="32" Spacing="20">
 
@@ -89,10 +90,13 @@
             <Button Content="Review duplicates preview" Click="ShowDuplicateDecisionPreview" />
             <Button Content="Organize preview" Click="ShowOrganizePreview" />
             <Button Content="Review plan preview" Click="ShowReviewPlanPreview" />
+            <Button Content="Libraries preview" Click="ShowLibrariesPreview" />
+            <Button Content="Summary preview" Click="ShowSummaryPreview" />
           </StackPanel>
         </StackPanel>
       </Border>
 
     </StackPanel>
   </ScrollViewer>
+  </ContentControl>
 </Window>

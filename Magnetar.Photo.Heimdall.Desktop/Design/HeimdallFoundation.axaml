@@ -1,0 +1,159 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Styles.Resources>
+  <ResourceDictionary>
+  <!-- Stitch design tokens: Magnetar Photo Heimdall / Mission Control. -->
+  <Color x:Key="HeimdallBackgroundColor">#051424</Color>
+  <Color x:Key="HeimdallSurfaceLowestColor">#010F1F</Color>
+  <Color x:Key="HeimdallSurfaceLowColor">#0D1C2D</Color>
+  <Color x:Key="HeimdallSurfaceColor">#122131</Color>
+  <Color x:Key="HeimdallSurfaceHighColor">#1C2B3C</Color>
+  <Color x:Key="HeimdallSurfaceHighestColor">#273647</Color>
+  <Color x:Key="HeimdallTextColor">#D4E4FA</Color>
+  <Color x:Key="HeimdallMutedTextColor">#BAC9CC</Color>
+  <Color x:Key="HeimdallOutlineColor">#3B494C</Color>
+  <Color x:Key="HeimdallCyanColor">#00E5FF</Color>
+  <Color x:Key="HeimdallCyanSoftColor">#C3F5FF</Color>
+  <Color x:Key="HeimdallSuccessColor">#34D399</Color>
+  <Color x:Key="HeimdallWarningColor">#FBBF24</Color>
+  <Color x:Key="HeimdallDangerColor">#FFB4AB</Color>
+
+  <SolidColorBrush x:Key="HeimdallBackgroundBrush" Color="{StaticResource HeimdallBackgroundColor}" />
+  <SolidColorBrush x:Key="HeimdallSurfaceLowestBrush" Color="{StaticResource HeimdallSurfaceLowestColor}" />
+  <SolidColorBrush x:Key="HeimdallSurfaceLowBrush" Color="{StaticResource HeimdallSurfaceLowColor}" />
+  <SolidColorBrush x:Key="HeimdallSurfaceBrush" Color="{StaticResource HeimdallSurfaceColor}" />
+  <SolidColorBrush x:Key="HeimdallSurfaceHighBrush" Color="{StaticResource HeimdallSurfaceHighColor}" />
+  <SolidColorBrush x:Key="HeimdallSurfaceHighestBrush" Color="{StaticResource HeimdallSurfaceHighestColor}" />
+  <SolidColorBrush x:Key="HeimdallTextBrush" Color="{StaticResource HeimdallTextColor}" />
+  <SolidColorBrush x:Key="HeimdallMutedTextBrush" Color="{StaticResource HeimdallMutedTextColor}" />
+  <SolidColorBrush x:Key="HeimdallOutlineBrush" Color="{StaticResource HeimdallOutlineColor}" />
+  <SolidColorBrush x:Key="HeimdallCyanBrush" Color="{StaticResource HeimdallCyanColor}" />
+  <SolidColorBrush x:Key="HeimdallCyanSoftBrush" Color="{StaticResource HeimdallCyanSoftColor}" />
+  <SolidColorBrush x:Key="HeimdallSuccessBrush" Color="{StaticResource HeimdallSuccessColor}" />
+  <SolidColorBrush x:Key="HeimdallWarningBrush" Color="{StaticResource HeimdallWarningColor}" />
+  <SolidColorBrush x:Key="HeimdallDangerBrush" Color="{StaticResource HeimdallDangerColor}" />
+
+  <Thickness x:Key="HeimdallPageMargin">24</Thickness>
+  <Thickness x:Key="HeimdallGutter">16</Thickness>
+  <CornerRadius x:Key="HeimdallRadiusSmall">4</CornerRadius>
+  <CornerRadius x:Key="HeimdallRadius">8</CornerRadius>
+  <CornerRadius x:Key="HeimdallRadiusLarge">12</CornerRadius>
+
+  <!-- Reusable, dependency-free Nordic Eye mark derived from the supplied Stitch logo. -->
+  <DrawingImage x:Key="HeimdallNordicEyeLogo">
+    <DrawingImage.Drawing>
+      <DrawingGroup>
+        <GeometryDrawing Geometry="M14,8 L14,61 C14,76 27,86 50,96 C73,86 86,76 86,61 L86,8 L70,19 L70,44 L50,61 L30,44 L30,19 Z">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#BAC9CC" Thickness="4" LineJoin="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M21,55 L50,16 L79,55 Z M21,55 L79,55">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#00E5FF" Thickness="4" LineJoin="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M24,52 C34,38 66,38 76,52 C66,66 34,66 24,52 Z">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#00E5FF" Thickness="4" LineJoin="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M50,43 A9,9 0 1 1 49.9,43" Brush="#00E5FF" />
+        <GeometryDrawing Geometry="M54,45 A3,3 0 1 1 53.9,45" Brush="#051424" />
+      </DrawingGroup>
+    </DrawingImage.Drawing>
+  </DrawingImage>
+
+  </ResourceDictionary>
+  </Styles.Resources>
+
+  <Style Selector="TextBlock.heimdall-headline-lg">
+    <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter" />
+    <Setter Property="FontSize" Value="32" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="LineHeight" Value="38.4" />
+    <Setter Property="Foreground" Value="{StaticResource HeimdallTextBrush}" />
+  </Style>
+  <Style Selector="TextBlock.heimdall-headline-md">
+    <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter" />
+    <Setter Property="FontSize" Value="24" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="LineHeight" Value="31.2" />
+    <Setter Property="Foreground" Value="{StaticResource HeimdallTextBrush}" />
+  </Style>
+  <Style Selector="TextBlock.heimdall-headline-sm">
+    <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter" />
+    <Setter Property="FontSize" Value="18" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{StaticResource HeimdallTextBrush}" />
+  </Style>
+  <Style Selector="TextBlock.heimdall-body">
+    <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter" />
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="LineHeight" Value="21" />
+    <Setter Property="Foreground" Value="{StaticResource HeimdallTextBrush}" />
+  </Style>
+  <Style Selector="TextBlock.heimdall-data">
+    <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="FontWeight" Value="Medium" />
+    <Setter Property="Foreground" Value="{StaticResource HeimdallMutedTextBrush}" />
+  </Style>
+  <Style Selector="TextBlock.heimdall-label">
+    <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter" />
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="LetterSpacing" Value="0.88" />
+    <Setter Property="Foreground" Value="{StaticResource HeimdallMutedTextBrush}" />
+  </Style>
+
+  <Style Selector="Border.heimdall-panel">
+    <Setter Property="Background" Value="{StaticResource HeimdallSurfaceLowBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource HeimdallOutlineBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource HeimdallRadiusLarge}" />
+    <Setter Property="Padding" Value="16" />
+  </Style>
+  <Style Selector="Border.heimdall-glass-panel">
+    <Setter Property="Background" Value="#B30D1C2D" />
+    <Setter Property="BorderBrush" Value="#1A849396" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource HeimdallRadiusLarge}" />
+  </Style>
+  <Style Selector="TextBox.heimdall-input">
+    <Setter Property="Background" Value="#0F172A" />
+    <Setter Property="BorderBrush" Value="#4D3B494C" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource HeimdallRadius}" />
+    <Setter Property="Padding" Value="12,8" />
+    <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter" />
+    <Setter Property="Foreground" Value="{StaticResource HeimdallTextBrush}" />
+  </Style>
+  <Style Selector="TextBox.heimdall-input:focus /template/ Border#PART_BorderElement">
+    <Setter Property="BorderBrush" Value="{StaticResource HeimdallCyanBrush}" />
+  </Style>
+  <Style Selector="Button.heimdall-primary">
+    <Setter Property="Background" Value="{StaticResource HeimdallCyanBrush}" />
+    <Setter Property="Foreground" Value="#00363D" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="{StaticResource HeimdallRadius}" />
+    <Setter Property="Padding" Value="16,9" />
+    <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="Button.heimdall-secondary">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{StaticResource HeimdallCyanBrush}" />
+    <Setter Property="BorderBrush" Value="#8000E5FF" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource HeimdallRadius}" />
+    <Setter Property="Padding" Value="16,9" />
+    <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="ProgressBar.heimdall-progress">
+    <Setter Property="Height" Value="4" />
+    <Setter Property="Foreground" Value="{StaticResource HeimdallCyanBrush}" />
+    <Setter Property="Background" Value="{StaticResource HeimdallSurfaceHighestBrush}" />
+  </Style>
+</Styles>
