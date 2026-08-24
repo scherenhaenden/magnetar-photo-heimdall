@@ -36,7 +36,7 @@
           </StackPanel>
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="10">
-          <TextBox Width="235" Watermark="Buscar BLAKE3, etiqueta, cámara…" />
+          <TextBox Width="235" PlaceholderText="Buscar BLAKE3, etiqueta, cámara…" />
           <Button Content="Crear plan" IsEnabled="False" ToolTip.Tip="Disponible al conectar el catálogo y revisar una selección." />
         </StackPanel>
       </Grid>
