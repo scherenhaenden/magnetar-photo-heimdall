@@ -1,8 +1,8 @@
 using Magnetar.Photo.Heimdall.BusinessLogic.Domains.LibraryManagement.Services;
-using Magnetar.Photo.Heimdall.DataAccess.Database.Domains.LibraryCatalog.Services;
+using Magnetar.Photo.Heimdall.DataAccess.Domains.DataAccessComposition.Services;
 using Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Services;
-using Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Services;
 using Magnetar.Photo.Heimdall.PresentationLogic.Domains.LibraryOnboarding.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Magnetar.Photo.Heimdall.Desktop.IntegrationTests;
@@ -98,10 +98,10 @@ public sealed class LibraryOnboardingIntegrationTests : IDisposable
     private (ILibraryCatalogDataAccessService catalog, LibraryOnboardingFacade facade) BuildStack()
     {
         var dbPath = Path.Combine(_testRoot, "catalog.db");
-        var databaseService = new SqliteLibraryCatalogDatabaseService(dbPath);
-        var catalog = new LibraryCatalogDataAccessService(
-            databaseService,
-            new PhysicalMediaFileScannerDataAccessIoService());
+        var services = new ServiceCollection()
+            .AddHeimdallDataAccess(dbPath)
+            .BuildServiceProvider();
+        var catalog = services.GetRequiredService<ILibraryCatalogDataAccessService>();
         var facade = new LibraryOnboardingFacade(
             new LibraryScanService(catalog));
         return (catalog, facade);

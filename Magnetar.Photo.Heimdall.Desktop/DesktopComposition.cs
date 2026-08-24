@@ -1,8 +1,8 @@
 using Magnetar.Photo.Heimdall.BusinessLogic.Domains.LibraryManagement.Services;
-using Magnetar.Photo.Heimdall.DataAccess.Database.Domains.LibraryCatalog.Services;
+using Magnetar.Photo.Heimdall.DataAccess.Domains.DataAccessComposition.Services;
 using Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Services;
-using Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Services;
 using Magnetar.Photo.Heimdall.PresentationLogic.Domains.LibraryOnboarding.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Magnetar.Photo.Heimdall.Desktop;
 
@@ -13,9 +13,10 @@ internal static class DesktopComposition
     public static LibraryOnboardingFacade CreateOnboardingFacade()
     {
         var databasePath = Path.Combine(AppContext.BaseDirectory, "heimdall-catalog.db");
-        var databaseService = new SqliteLibraryCatalogDatabaseService(databasePath);
-        var scanner = new PhysicalMediaFileScannerDataAccessIoService();
-        var catalog = new LibraryCatalogDataAccessService(databaseService, scanner);
+        var dataAccess = new ServiceCollection()
+            .AddHeimdallDataAccess(databasePath)
+            .BuildServiceProvider();
+        var catalog = dataAccess.GetRequiredService<ILibraryCatalogDataAccessService>();
         return new LibraryOnboardingFacade(new LibraryScanService(catalog));
     }
 }

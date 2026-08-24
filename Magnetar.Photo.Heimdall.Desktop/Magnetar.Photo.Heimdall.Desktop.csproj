@@ -18,14 +18,13 @@
          0.95.0 here eliminates the NU1903 advisory that TreatWarningsAsErrors
          converts into a build error. -->
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.95.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.11" />
   </ItemGroup>
   <ItemGroup>
-    <!-- Composition root: Desktop wires PresentationLogic → BusinessLogic → DataAccess → DataAccess.IO.
+    <!-- Composition root: Desktop wires PresentationLogic → BusinessLogic → DataAccess → Database/IO/Net.
          PresentationLogic is the only layer the ViewModel depends on directly. -->
     <ProjectReference Include="../Magnetar.Photo.Heimdall.PresentationLogic/Magnetar.Photo.Heimdall.PresentationLogic.csproj" />
     <ProjectReference Include="../Magnetar.Photo.Heimdall.BusinessLogic/Magnetar.Photo.Heimdall.BusinessLogic.csproj" />
     <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess/Magnetar.Photo.Heimdall.DataAccess.csproj" />
-    <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess.Database/Magnetar.Photo.Heimdall.DataAccess.Database.csproj" />
-    <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess.IO/Magnetar.Photo.Heimdall.DataAccess.IO.csproj" />
   </ItemGroup>
 </Project>

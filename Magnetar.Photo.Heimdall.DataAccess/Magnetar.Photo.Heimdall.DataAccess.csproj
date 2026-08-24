@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess.IO/Magnetar.Photo.Heimdall.DataAccess.IO.csproj" />
     <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess.Database/Magnetar.Photo.Heimdall.DataAccess.Database.csproj" />
+    <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess.Net/Magnetar.Photo.Heimdall.DataAccess.Net.csproj" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.11" />
   </ItemGroup>
 </Project>
