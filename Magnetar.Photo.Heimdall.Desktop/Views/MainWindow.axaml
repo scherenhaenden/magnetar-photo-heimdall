@@ -1,0 +1,80 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Magnetar.Photo.Heimdall.Desktop.Views.MainWindow"
+        Width="740" Height="520" MinWidth="540" MinHeight="400"
+        Title="Heimdall — Photo Libraries">
+
+  <ScrollViewer>
+    <StackPanel Margin="32" Spacing="20">
+
+      <!-- ── Header ── -->
+      <StackPanel Spacing="4">
+        <TextBlock FontSize="28" FontWeight="SemiBold"
+                   Text="Photo libraries" />
+        <TextBlock Opacity="0.7"
+                   Text="Register a folder, then scan it into the Heimdall catalogue." />
+      </StackPanel>
+
+      <!-- ── Input card ── -->
+      <Border Padding="20" CornerRadius="8"
+              Background="{DynamicResource SystemControlBackgroundBaseLowBrush}">
+        <StackPanel Spacing="14">
+
+          <!-- Library name -->
+          <StackPanel Spacing="4">
+            <TextBlock Text="Library name" />
+            <TextBox Text="{Binding DisplayName}"
+                     Watermark="Family photos"
+                     IsEnabled="{Binding IsInputEnabled}" />
+          </StackPanel>
+
+          <!-- Folder path + native folder picker -->
+          <StackPanel Spacing="4">
+            <TextBlock Text="Folder path" />
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+              <TextBox Text="{Binding RootPath}"
+                       Watermark="/Users/me/Pictures"
+                       IsEnabled="{Binding IsInputEnabled}" />
+              <!-- ChooseFolderCommand is disabled when no picker is wired (e.g. in headless tests) -->
+              <Button Grid.Column="1"
+                      Content="Choose folder…"
+                      Command="{Binding ChooseFolderCommand}" />
+            </Grid>
+          </StackPanel>
+
+        </StackPanel>
+      </Border>
+
+      <!-- ── Progress bar (indeterminate while scanning) ── -->
+      <ProgressBar IsIndeterminate="True"
+                   IsVisible="{Binding IsBusy}"
+                   Height="4" />
+
+      <!-- ── General status message ── -->
+      <TextBlock Text="{Binding StatusMessage}"
+                 TextWrapping="Wrap"
+                 Opacity="0.85" />
+
+      <!-- ── Catalogued-asset count (visible only after a successful scan) ── -->
+      <TextBlock IsVisible="{Binding HasCataloguedCount}"
+                 Text="{Binding CataloguedCount, StringFormat='Medios catalogados: {0}'}"
+                 FontWeight="SemiBold" />
+
+      <!-- ── Error detail (visible only when the last operation failed) ── -->
+      <Border IsVisible="{Binding HasError}"
+              Padding="12" CornerRadius="6"
+              Background="#33FF2222">
+        <TextBlock Text="{Binding ErrorMessage}"
+                   TextWrapping="Wrap"
+                   Foreground="#CC0000" />
+      </Border>
+
+      <!-- ── Primary action ── -->
+      <Button HorizontalAlignment="Right"
+              MinWidth="160"
+              Command="{Binding AddAndScanCommand}"
+              Content="Add and scan" />
+
+    </StackPanel>
+  </ScrollViewer>
+</Window>
