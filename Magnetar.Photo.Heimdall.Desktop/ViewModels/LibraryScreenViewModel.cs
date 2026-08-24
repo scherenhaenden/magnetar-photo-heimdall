@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using Magnetar.Photo.Heimdall.PresentationLogic;
+using Magnetar.Photo.Heimdall.PresentationLogic.Domains.LibraryOnboarding.Services;
 
 namespace Magnetar.Photo.Heimdall.Desktop.ViewModels;
 

@@ -1,10 +1,9 @@
-using Magnetar.Photo.Heimdall.DataAccess.IO;
+using Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Models;
+using Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Mappers;
+using Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Models;
 using Microsoft.Data.Sqlite;
 
-namespace Magnetar.Photo.Heimdall.DataAccess;
-
-public sealed record LibraryRoot(Guid Id, string DisplayName, string CanonicalPath, DateTimeOffset CreatedAt);
-public sealed record CataloguedAsset(Guid Id, Guid LibraryId, string RelativePath, long Length, DateTimeOffset LastWriteUtc);
+namespace Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Services;
 
 public interface ILibraryCatalog
 {
@@ -89,7 +88,7 @@ public sealed class SqliteLibraryCatalog(string databasePath) : ILibraryCatalog
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
-            assets.Add(new CataloguedAsset(Guid.Parse(reader.GetString(0)), libraryId, reader.GetString(1), reader.GetInt64(2), DateTimeOffset.Parse(reader.GetString(3), null, System.Globalization.DateTimeStyles.RoundtripKind)));
+            assets.Add(CataloguedAssetMapper.FromReader(reader, libraryId));
         }
 
         return assets;

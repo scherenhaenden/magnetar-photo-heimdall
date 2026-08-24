@@ -9,5 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="../Magnetar.Photo.Heimdall.BusinessLogic/Magnetar.Photo.Heimdall.BusinessLogic.csproj" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
   </ItemGroup>
 </Project>
