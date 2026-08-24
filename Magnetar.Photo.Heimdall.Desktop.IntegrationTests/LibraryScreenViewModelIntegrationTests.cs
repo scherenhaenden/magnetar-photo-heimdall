@@ -1,7 +1,7 @@
-using Magnetar.Photo.Heimdall.BusinessLogic;
-using Magnetar.Photo.Heimdall.DataAccess;
-using Magnetar.Photo.Heimdall.DataAccess.IO;
-using Magnetar.Photo.Heimdall.PresentationLogic;
+using Magnetar.Photo.Heimdall.BusinessLogic.Domains.LibraryManagement.Services;
+using Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Services;
+using Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Services;
+using Magnetar.Photo.Heimdall.PresentationLogic.Domains.LibraryOnboarding.Services;
 using Xunit;
 
 namespace Magnetar.Photo.Heimdall.Desktop.IntegrationTests;

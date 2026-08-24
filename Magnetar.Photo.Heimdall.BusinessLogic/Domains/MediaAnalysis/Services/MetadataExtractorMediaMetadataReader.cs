@@ -1,4 +1,6 @@
 using MetadataExtractor;
+using Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Models;
+using Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Mappers;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.QuickTime;
 using MetadataExtractor.Formats.Xmp;
@@ -7,7 +9,7 @@ using System.Text;
 using System.Xml.Linq;
 using System.Buffers.Binary;
 
-namespace Magnetar.Photo.Heimdall.MediaAnalysis;
+namespace Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Services;
 
 /// <summary>
 /// Resolves capture dates using the MetadataExtractor library for real EXIF/XMP/QuickTime parsing.
@@ -104,7 +106,7 @@ public sealed class MetadataExtractorMediaMetadataReader : IMediaMetadataReader
 
         // ── 4. Filesystem mtime fallback ─────────────────────────────────────
         var mtime = new DateTimeOffset(File.GetLastWriteTimeUtc(filePath), TimeSpan.Zero);
-        var mtimeEvidence = new MetadataEvidence(filePath, DateSource.FilesystemMtime, mtime, MtimeConfidence, null);
+        var mtimeEvidence = MetadataEvidenceMapper.FromFilesystemMtime(filePath, mtime, MtimeConfidence);
         evidence.Add(mtimeEvidence);
 
         return new ResolvedCaptureDate(mtime, DateSource.FilesystemMtime, MtimeConfidence, evidence.AsReadOnly());

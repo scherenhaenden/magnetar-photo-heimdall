@@ -1,7 +1,8 @@
-using Magnetar.Photo.Heimdall.BusinessLogic;
-using Magnetar.Photo.Heimdall.DataAccess;
-using Magnetar.Photo.Heimdall.DataAccess.IO;
-using Magnetar.Photo.Heimdall.MediaAnalysis;
+using Magnetar.Photo.Heimdall.BusinessLogic.Domains.LibraryManagement.Services;
+using Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Models;
+using Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Services;
+using Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Services;
+using Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Buffers.Binary;
 
