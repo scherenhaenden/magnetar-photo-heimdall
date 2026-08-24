@@ -2,6 +2,7 @@ using Magnetar.Photo.Heimdall.BusinessLogic.Domains.LibraryManagement.Services;
 using Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Services;
 using Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Services;
 using Magnetar.Photo.Heimdall.PresentationLogic.Domains.LibraryOnboarding.Services;
+using Magnetar.Photo.Heimdall.Desktop.ViewModels;
 using Xunit;
 
 namespace Magnetar.Photo.Heimdall.Desktop.IntegrationTests;
@@ -77,6 +78,32 @@ public sealed class LibraryOnboardingIntegrationTests : IDisposable
         Assert.Single(assetsAfterSecond);
         Assert.Equal(1, secondScan.CataloguedAssetCount);
         Assert.Equal(5L, assetsAfterSecond[0].Length);
+    }
+
+    [Fact]
+    public async Task Summary_state_retains_last_successful_scan_when_next_scan_fails()
+    {
+        await File.WriteAllBytesAsync(Path.Combine(_testRoot, "photo.jpg"), [0x01, 0x02]);
+
+        var (_, facade) = BuildStack();
+        var screen = new LibraryScreenViewModel(facade)
+        {
+            DisplayName = "Original library",
+            RootPath = _testRoot,
+        };
+        var summary = new SummaryScreenViewModel(screen);
+
+        await screen.AddAndScanAsync();
+        Assert.Equal(1, summary.CataloguedAssetCount);
+        Assert.Equal("Original library", summary.CurrentLibraryName);
+
+        screen.DisplayName = "Unsaved draft";
+        screen.RootPath = Path.Combine(_testRoot, "missing");
+        await screen.AddAndScanAsync();
+
+        Assert.True(screen.HasError);
+        Assert.Equal(1, summary.CataloguedAssetCount);
+        Assert.Equal("Original library", summary.CurrentLibraryName);
     }
 
     // ── Cleanup ───────────────────────────────────────────────────────────

@@ -89,6 +89,8 @@
             <Button Content="Review duplicates preview" Click="ShowDuplicateDecisionPreview" />
             <Button Content="Organize preview" Click="ShowOrganizePreview" />
             <Button Content="Review plan preview" Click="ShowReviewPlanPreview" />
+            <Button Content="Libraries preview" Click="ShowLibrariesPreview" />
+            <Button Content="Summary preview" Click="ShowSummaryPreview" />
           </StackPanel>
         </StackPanel>
       </Border>

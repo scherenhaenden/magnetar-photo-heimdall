@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Magnetar.Photo.Heimdall.Desktop.ViewModels;
 
 namespace Magnetar.Photo.Heimdall.Desktop.Views;
 
@@ -18,6 +19,15 @@ public partial class MainWindow : Window
 
     private void ShowReviewPlanPreview(object? sender, RoutedEventArgs e) =>
         ShowPreview("Heimdall — Review plan", new ReviewPlanView());
+
+    private void ShowLibrariesPreview(object? sender, RoutedEventArgs e) =>
+        ShowPreview("Heimdall — Source libraries", new LibrariesView { DataContext = LibraryScreen });
+
+    private void ShowSummaryPreview(object? sender, RoutedEventArgs e) =>
+        ShowPreview("Heimdall — Summary", new SummaryView { DataContext = new SummaryScreenViewModel(LibraryScreen) });
+
+    private LibraryScreenViewModel LibraryScreen => DataContext as LibraryScreenViewModel
+        ?? throw new InvalidOperationException("MainWindow requires LibraryScreenViewModel as its DataContext.");
 
     private void ShowPreview(string title, Control content)
     {
