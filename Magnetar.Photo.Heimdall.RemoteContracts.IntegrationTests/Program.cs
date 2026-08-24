@@ -1,4 +1,5 @@
-using Magnetar.Photo.Heimdall.RemoteContracts;
+using Magnetar.Photo.Heimdall.RemoteContracts.Domains.RemoteAgent.Models;
+using Magnetar.Photo.Heimdall.RemoteContracts.Domains.RemoteAgent.Services;
 
 // ---------------------------------------------------------------------------
 // Shared helpers
@@ -89,9 +90,11 @@ Verify(d6.State == ThermalState.Critical, "Temperature 67 C (> hysteresis target
 Verify(!d6.AcceptNewWork, "Cooling (temp not low enough) must not accept new work");
 Console.WriteLine($"[6] Cooling (temp not low enough, reported as Critical): {d6}");
 
-// ---- 7. Normal resume — both conditions satisfied ----
-// 3 min+ elapsed, peak=63 < 65 target
-var tResume = tCritical.AddMinutes(3).AddSeconds(1);
+// ---- 7. Normal resume — safe temperature has now remained continuous for 2 min ----
+var tSafeStart = tCooling2.AddSeconds(1);
+var stillCooling = controller.Observe(AvailableSnapshot(63m, tSafeStart), tSafeStart);
+Verify(stillCooling.State == ThermalState.Critical, "The continuous safe interval begins after the unsafe reading");
+var tResume = tSafeStart.AddMinutes(2);
 var d7 = controller.Observe(AvailableSnapshot(63m, tResume), tResume);
 Verify(d7.State == ThermalState.Normal, "63 C after full cooling must be Normal");
 Verify(d7.EffectiveConcurrency == 8, "After cooling, Normal concurrency must restore to 8");
@@ -101,8 +104,8 @@ Console.WriteLine($"[7] Resumed Normal: {d7}");
 // ---- 8. Unavailable snapshot — no fabricated temperature ----
 var d8 = controller.Observe(UnavailableSnapshot("sensor permission denied"), t0.AddMinutes(10));
 Verify(d8.State == ThermalState.Unavailable, "Explicit Unavailable snapshot must set Unavailable state");
-Verify(d8.EffectiveConcurrency == 1, "Unavailable must cap at HighConcurrency=1 (safe conservative)");
-Verify(d8.AcceptNewWork, "Unavailable must accept work (cannot confirm heat)");
+Verify(d8.EffectiveConcurrency == 0, "Unavailable must not start work without trustworthy telemetry");
+Verify(!d8.AcceptNewWork, "Unavailable must not accept new work");
 Console.WriteLine($"[8] Unavailable (explicit): {d8}");
 
 // ---- 9. Stale reading — reading older than ReadingStalenessWindow -> Unavailable ----
@@ -114,18 +117,31 @@ var staleSnapshot = new ThermalSnapshot(
     [new ThermalReading("cpu0", 65m, staleObservedAt, 1.0m, ThermalState.Normal)]);
 var d9 = controller.Observe(staleSnapshot, freshNow);
 Verify(d9.State == ThermalState.Unavailable, "Stale reading must be degraded to Unavailable");
-Verify(d9.Reason.Contains("staleness"), $"Reason must mention staleness, got: '{d9.Reason}'");
+Verify(d9.Reason.Contains("stale"), $"Reason must mention stale telemetry, got: '{d9.Reason}'");
 Console.WriteLine($"[9] Stale reading -> Unavailable: {d9}");
 
-// ---- 10. UnavailableThermalProvider — never fabricates Celsius ----
+// ---- 10. A telemetry outage during cooling must not bypass the cooling gate ----
+var recoveryController = new ThermalWorkloadController(policy);
+var recoveryCritical = recoveryController.Observe(AvailableSnapshot(91m, t0), t0);
+Verify(recoveryCritical.State == ThermalState.Critical, "Recovery setup must enter Critical");
+var recoveryOutage = recoveryController.Observe(UnavailableSnapshot("sensor disconnected"), t0.AddSeconds(10));
+Verify(recoveryOutage.State == ThermalState.Critical && recoveryOutage.EffectiveConcurrency == 0,
+    "An outage during cooling must retain the work pause");
+var recoverySafe = recoveryController.Observe(AvailableSnapshot(64m, t0.AddSeconds(20)), t0.AddSeconds(20));
+Verify(recoverySafe.State == ThermalState.Critical, "Recovered telemetry must restart the continuous safe interval");
+var recoveryResumed = recoveryController.Observe(AvailableSnapshot(64m, t0.AddMinutes(3)), t0.AddMinutes(3));
+Verify(recoveryResumed.State == ThermalState.Normal, "Recovery may resume only after the new safe interval");
+Console.WriteLine("[10] Cooling gate survives telemetry outage.");
+
+// ---- 11. UnavailableThermalProvider — never fabricates Celsius ----
 var unavailableProvider = new UnavailableThermalProvider("No SMC access on this runner.");
 var providerSnapshot = unavailableProvider.GetSnapshot();
 Verify(providerSnapshot.Availability == TelemetryAvailability.Unavailable, "Provider snapshot must be Unavailable");
 Verify(providerSnapshot.Readings.Count == 0, "Provider must return empty reading list — no fabricated Celsius");
 Verify(!string.IsNullOrEmpty(providerSnapshot.Reason), "Provider must include a diagnostic reason");
-Console.WriteLine($"[10] UnavailableThermalProvider: Availability={providerSnapshot.Availability}, Reason='{providerSnapshot.Reason}'");
+Console.WriteLine($"[11] UnavailableThermalProvider: Availability={providerSnapshot.Availability}, Reason='{providerSnapshot.Reason}'");
 
-// ---- 11. OperationRequest — valid path accepted ----
+// ---- 12. OperationRequest — valid path accepted ----
 var caps = new AgentCapabilities(
     ProtocolVersion.V1,
     [new AgentRoot("photos", "Photos Library")],
@@ -137,13 +153,14 @@ var caps = new AgentCapabilities(
 var validOp = new OperationRequest(
     ProtocolVersion.V1, "photos", "2026/trip/DSC0001.nef", OperationKind.Hash, 2, "idem-key-abc");
 validOp.ValidateAgainst(caps);
-Console.WriteLine("[11] Valid OperationRequest accepted.");
+Console.WriteLine("[12] Valid OperationRequest accepted.");
 
-// ---- 12. Absolute paths rejected ----
+// ---- 13. Absolute paths rejected ----
 foreach (var badPath in new[]
 {
     "/etc/passwd",
     "C:\\Windows\\system32",
+    "C:/Windows/system32",
     "/var/lib/secret"
 })
 {
@@ -152,9 +169,9 @@ foreach (var badPath in new[]
                   .ValidateAgainst(caps),
         $"Absolute path '{badPath}'");
 }
-Console.WriteLine("[12] Absolute paths correctly rejected.");
+Console.WriteLine("[13] Absolute paths correctly rejected.");
 
-// ---- 13. Path traversal rejected ----
+// ---- 14. Path traversal rejected ----
 foreach (var traversal in new[]
 {
     "../secret.nef",
@@ -168,30 +185,30 @@ foreach (var traversal in new[]
                   .ValidateAgainst(caps),
         $"Traversal path '{traversal}'");
 }
-Console.WriteLine("[13] Path traversal correctly rejected.");
+Console.WriteLine("[14] Path traversal correctly rejected.");
 
-// ---- 14. Unknown root rejected ----
+// ---- 15. Unknown root rejected ----
 ExpectContractViolation(
     () => new OperationRequest(ProtocolVersion.V1, "unknown-root", "image.nef", OperationKind.Hash, 1, "k3")
               .ValidateAgainst(caps),
     "Unknown root 'unknown-root'");
-Console.WriteLine("[14] Unknown root correctly rejected.");
+Console.WriteLine("[15] Unknown root correctly rejected.");
 
-// ---- 15. Protocol version mismatch rejected ----
+// ---- 16. Protocol version mismatch rejected ----
 ExpectContractViolation(
     () => new OperationRequest(new ProtocolVersion(2, 0), "photos", "image.nef", OperationKind.Hash, 1, "k4")
               .ValidateAgainst(caps),
     "Protocol major version mismatch");
-Console.WriteLine("[15] Protocol version mismatch correctly rejected.");
+Console.WriteLine("[16] Protocol version mismatch correctly rejected.");
 
-// ---- 16. Empty idempotency key rejected ----
+// ---- 17. Empty idempotency key rejected ----
 ExpectContractViolation(
     () => new OperationRequest(ProtocolVersion.V1, "photos", "image.nef", OperationKind.Hash, 1, "")
               .ValidateAgainst(caps),
     "Empty idempotency key");
-Console.WriteLine("[16] Empty idempotency key correctly rejected.");
+Console.WriteLine("[17] Empty idempotency key correctly rejected.");
 
-// ---- 17. Concurrency out of range rejected ----
+// ---- 18. Concurrency out of range rejected ----
 ExpectContractViolation(
     () => new OperationRequest(ProtocolVersion.V1, "photos", "image.nef", OperationKind.Hash, 0, "k5")
               .ValidateAgainst(caps),
@@ -200,22 +217,25 @@ ExpectContractViolation(
     () => new OperationRequest(ProtocolVersion.V1, "photos", "image.nef", OperationKind.Hash, 99, "k6")
               .ValidateAgainst(caps),
     "Concurrency exceeds MaximumConcurrency");
-Console.WriteLine("[17] Out-of-range concurrency correctly rejected.");
+Console.WriteLine("[18] Out-of-range concurrency correctly rejected.");
 
-// ---- 18. WorkloadPolicy validation catches bad configuration ----
+// ---- 19. WorkloadPolicy validation catches bad configuration ----
 ExpectContractViolation(
     () => new WorkloadPolicy(90m, 80m, 70m, 5m, TimeSpan.FromMinutes(2), TimeSpan.FromSeconds(30), 8, 4, 1).Validate(),
     "Inverted thresholds");
 ExpectContractViolation(
     () => new WorkloadPolicy(70m, 80m, 90m, 5m, TimeSpan.FromMinutes(2), TimeSpan.FromSeconds(30), 1, 4, 1).Validate(),
     "WarningConcurrency > NormalConcurrency");
-Console.WriteLine("[18] WorkloadPolicy validation catches bad configuration.");
+ExpectContractViolation(
+    () => new WorkloadPolicy(70m, 80m, 90m, 70m, TimeSpan.FromMinutes(2), TimeSpan.FromSeconds(30), 8, 4, 1).Validate(),
+    "Hysteresis cannot make the safe threshold unreachable");
+Console.WriteLine("[19] WorkloadPolicy validation catches bad configuration.");
 
-// ---- 19. AgentRoot id validation ----
+// ---- 20. AgentRoot id validation ----
 ExpectContractViolation(() => new AgentRoot("bad path/root!", "Bad").Validate(), "Root id with invalid chars");
 ExpectContractViolation(() => new AgentRoot("", "Empty").Validate(), "Empty root id");
-Console.WriteLine("[19] AgentRoot id validation works.");
+Console.WriteLine("[20] AgentRoot id validation works.");
 
 Console.WriteLine(string.Empty);
-Console.WriteLine("PASS: all 19 remote-contract integration assertions passed.");
+Console.WriteLine("PASS: all 20 remote-contract integration assertions passed.");
 return 0;

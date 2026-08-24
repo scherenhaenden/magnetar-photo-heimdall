@@ -1,10 +1,15 @@
 using MetadataExtractor;
+using Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Models;
+using Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Mappers;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.QuickTime;
 using MetadataExtractor.Formats.Xmp;
 using System.Globalization;
+using System.Text;
+using System.Xml.Linq;
+using System.Buffers.Binary;
 
-namespace Magnetar.Photo.Heimdall.MediaAnalysis;
+namespace Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Services;
 
 /// <summary>
 /// Resolves capture dates using the MetadataExtractor library for real EXIF/XMP/QuickTime parsing.
@@ -81,6 +86,14 @@ public sealed class MetadataExtractorMediaMetadataReader : IMediaMetadataReader
 
         // ── 3. QuickTime mvhd ────────────────────────────────────────────────
         var qtEvidence = TryExtractQuickTime(filePath, directories);
+        if (!qtEvidence.RawValue.HasValue)
+        {
+            var streamedQuickTime = await TryReadQuickTimeMvhdAsync(filePath, ct).ConfigureAwait(false);
+            if (streamedQuickTime.HasValue)
+            {
+                qtEvidence = new MetadataEvidence(filePath, DateSource.QuickTime, streamedQuickTime, QuickTimeConfidence, null);
+            }
+        }
         evidence.Add(qtEvidence);
         if (qtEvidence.RawValue.HasValue)
         {
@@ -93,7 +106,7 @@ public sealed class MetadataExtractorMediaMetadataReader : IMediaMetadataReader
 
         // ── 4. Filesystem mtime fallback ─────────────────────────────────────
         var mtime = new DateTimeOffset(File.GetLastWriteTimeUtc(filePath), TimeSpan.Zero);
-        var mtimeEvidence = new MetadataEvidence(filePath, DateSource.FilesystemMtime, mtime, MtimeConfidence, null);
+        var mtimeEvidence = MetadataEvidenceMapper.FromFilesystemMtime(filePath, mtime, MtimeConfidence);
         evidence.Add(mtimeEvidence);
 
         return new ResolvedCaptureDate(mtime, DateSource.FilesystemMtime, MtimeConfidence, evidence.AsReadOnly());
@@ -134,17 +147,6 @@ public sealed class MetadataExtractorMediaMetadataReader : IMediaMetadataReader
                 }
             }
 
-            // Fallback: IFD0 DateTime tag (0x0132).
-            foreach (var dir in directories.OfType<ExifIfd0Directory>())
-            {
-                if (dir.TryGetDateTime(ExifIfd0Directory.TagDateTime, out var dt))
-                {
-                    return new MetadataEvidence(
-                        filePath, DateSource.ExifDateTimeOriginal,
-                        new DateTimeOffset(dt, TimeSpan.Zero),
-                        ExifConfidence, null);
-                }
-            }
         }
         catch (Exception ex)
         {
@@ -199,7 +201,52 @@ public sealed class MetadataExtractorMediaMetadataReader : IMediaMetadataReader
             return new MetadataEvidence(filePath, DateSource.Xmp, null, XmpConfidence, ex.Message);
         }
 
+        // MetadataExtractor only sees XMP embedded in formats it recognizes. Also accept a
+        // standalone XMP packet, parsing XML rather than matching date-looking text.
+        try
+        {
+            var embedded = TryReadXmpPacket(filePath);
+            if (embedded.HasValue)
+            {
+                return new MetadataEvidence(filePath, DateSource.Xmp, embedded, XmpConfidence, null);
+            }
+        }
+        catch (Exception ex)
+        {
+            return new MetadataEvidence(filePath, DateSource.Xmp, null, XmpConfidence, ex.Message);
+        }
+
         return new MetadataEvidence(filePath, DateSource.Xmp, null, XmpConfidence, null);
+    }
+
+    private static DateTimeOffset? TryReadXmpPacket(string filePath)
+    {
+        const int maximumPacketBytes = 16 * 1024 * 1024;
+        using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var bytes = new byte[(int)Math.Min(stream.Length, maximumPacketBytes)];
+        var offset = 0;
+        while (offset < bytes.Length)
+        {
+            var read = stream.Read(bytes, offset, bytes.Length - offset);
+            if (read == 0) break;
+            offset += read;
+        }
+        var text = Encoding.UTF8.GetString(bytes, 0, offset);
+        var start = text.IndexOf("<x:xmpmeta", StringComparison.OrdinalIgnoreCase);
+        var end = text.IndexOf("</x:xmpmeta>", start < 0 ? 0 : start, StringComparison.OrdinalIgnoreCase);
+        if (start < 0 || end < start) return null;
+        var packet = XDocument.Parse(text[start..(end + "</x:xmpmeta>".Length)]);
+        foreach (var element in packet.Root!.DescendantsAndSelf())
+        {
+            var candidates = element.Attributes().Select(a => (Name: a.Name.LocalName, Value: a.Value))
+                .Append((Name: element.Name.LocalName, Value: element.Value));
+            foreach (var candidate in candidates)
+            {
+                if (candidate.Name is not ("CreateDate" or "DateCreated" or "DateTimeOriginal")) continue;
+                if (DateTimeOffset.TryParse(candidate.Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var date)) return date;
+            }
+        }
+        return null;
     }
 
     private static MetadataEvidence TryExtractQuickTime(
@@ -225,6 +272,52 @@ public sealed class MetadataExtractorMediaMetadataReader : IMediaMetadataReader
         }
 
         return new MetadataEvidence(filePath, DateSource.QuickTime, null, QuickTimeConfidence, null);
+    }
+
+    // MetadataExtractor is preferred for structured files; this bounded-memory scan covers
+    // late moov atoms and mvhd v1 timestamps without imposing an arbitrary file-size limit.
+    private static async Task<DateTimeOffset?> TryReadQuickTimeMvhdAsync(string filePath, CancellationToken ct)
+    {
+        await using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 64 * 1024, FileOptions.Asynchronous | FileOptions.SequentialScan);
+        var buffer = new byte[64 * 1024 + 7];
+        var carry = 0;
+        long absolute = 0;
+        while (true)
+        {
+            var read = await stream.ReadAsync(buffer.AsMemory(carry, 64 * 1024), ct).ConfigureAwait(false);
+            if (read == 0) return null;
+            var total = carry + read;
+            for (var index = 4; index + 4 <= total; index++)
+            {
+                if (!buffer.AsSpan(index, 4).SequenceEqual("mvhd"u8)) continue;
+                var parsed = await TryParseMvhdAsync(stream, absolute - carry + index - 4, ct).ConfigureAwait(false);
+                if (parsed.HasValue) return parsed;
+                stream.Position = absolute + read;
+            }
+            carry = Math.Min(7, total);
+            buffer.AsSpan(total - carry, carry).CopyTo(buffer);
+            absolute += read;
+        }
+    }
+
+    private static async Task<DateTimeOffset?> TryParseMvhdAsync(FileStream stream, long atomOffset, CancellationToken ct)
+    {
+        if (atomOffset < 0 || atomOffset > stream.Length - 20) return null;
+        var header = new byte[32];
+        stream.Position = atomOffset;
+        var read = await stream.ReadAsync(header, ct).ConfigureAwait(false);
+        if (read < 20 || !header.AsSpan(4, 4).SequenceEqual("mvhd"u8)) return null;
+        var size32 = BinaryPrimitives.ReadUInt32BigEndian(header);
+        var headerSize = size32 == 1 ? 16 : 8;
+        var atomSize = size32 == 1 && read >= 16 ? (long)BinaryPrimitives.ReadUInt64BigEndian(header.AsSpan(8, 8)) : size32;
+        if (atomSize < headerSize + 12 || atomSize > stream.Length - atomOffset) return null;
+        var version = header[headerSize];
+        var creationOffset = version switch { 0 => headerSize + 4, 1 => headerSize + 4, _ => -1 };
+        var required = version == 0 ? creationOffset + 4 : creationOffset + 8;
+        if (creationOffset < 0 || atomSize < required || read < required) return null;
+        var seconds = version == 0 ? BinaryPrimitives.ReadUInt32BigEndian(header.AsSpan(creationOffset, 4)) : (long)BinaryPrimitives.ReadUInt64BigEndian(header.AsSpan(creationOffset, 8));
+        try { return DateTimeOffset.UnixEpoch.AddSeconds(seconds - 2_082_844_800L); }
+        catch (ArgumentOutOfRangeException) { return null; }
     }
 
     private static bool TryParseExifDateString(string? text, out DateTimeOffset value)

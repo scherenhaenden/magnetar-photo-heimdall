@@ -79,7 +79,7 @@ Normal ──► Warning ──► High ──► Critical ──► Cooling ─
 | `High` | `HighConcurrency` | **No** | peak ≥ HighCelsius |
 | `Critical` | **0** | **No** | peak ≥ CriticalCelsius |
 | `Cooling` | **0** | **No** | saliendo de Critical, aún en histéresis |
-| `Unavailable` | `HighConcurrency` | Sí | sin sensor, permiso denegado o lectura vencida |
+| `Unavailable` | **0** | **No** | sin sensor, permiso denegado o lectura vencida |
 
 ### 5.2 Reanudación segura desde Critical
 
@@ -87,23 +87,23 @@ La salida de `Cooling` exige que **ambas** condiciones se cumplan
 simultáneamente:
 
 - **Temperatura:** `peak < WarningCelsius − HysteresisCelsius`
-- **Tiempo:** `elapsed ≥ MinimumCoolingDuration` desde que se entró en Critical
+- **Tiempo:** la temperatura segura debe mantenerse de forma continua durante `MinimumCoolingDuration`
 
 El controlador no puede forzarse a saltar `Cooling` desde el exterior.
 
 ### 5.3 Lecturas vencidas
 
 Una lectura cuyo `ObservedAt` sea anterior a
-`now − ReadingStalenessWindow` se descarta. Si **todas** las lecturas de un
-snapshot `Available` están vencidas, el controlador las trata como
-`Unavailable` y aplica concurrencia `HighConcurrency`.
+`now − ReadingStalenessWindow`, futura o físicamente inválida se descarta. Si
+la telemetría no es completamente fiable, el controlador la trata como
+`Unavailable` y no inicia trabajo nuevo.
 
 ### 5.4 Plataformas sin sensor
 
 `UnavailableThermalProvider` devuelve siempre un snapshot
 `TelemetryAvailability.Unavailable` con lista de lecturas vacía y un motivo
-textual. **Nunca fabrica grados Celsius.** El controlador asume "seguro pero
-desconocido" y aplica `HighConcurrency` como límite conservador.
+textual. **Nunca fabrica grados Celsius.** El controlador no inicia trabajo
+nuevo hasta volver a disponer de telemetría fiable.
 
 ---
 
