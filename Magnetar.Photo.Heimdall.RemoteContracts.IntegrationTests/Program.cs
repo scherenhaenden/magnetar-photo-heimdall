@@ -1,4 +1,5 @@
-using Magnetar.Photo.Heimdall.RemoteContracts;
+using Magnetar.Photo.Heimdall.RemoteContracts.Domains.RemoteAgent.Models;
+using Magnetar.Photo.Heimdall.RemoteContracts.Domains.RemoteAgent.Services;
 
 // ---------------------------------------------------------------------------
 // Shared helpers

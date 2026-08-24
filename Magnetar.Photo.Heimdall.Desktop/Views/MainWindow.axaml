@@ -24,7 +24,7 @@
           <StackPanel Spacing="4">
             <TextBlock Text="Library name" />
             <TextBox Text="{Binding DisplayName}"
-                     Watermark="Family photos"
+                     PlaceholderText="Family photos"
                      IsEnabled="{Binding IsInputEnabled}" />
           </StackPanel>
 
@@ -33,7 +33,7 @@
             <TextBlock Text="Folder path" />
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
               <TextBox Text="{Binding RootPath}"
-                       Watermark="/Users/me/Pictures"
+                       PlaceholderText="/Users/me/Pictures"
                        IsEnabled="{Binding IsInputEnabled}" />
               <!-- ChooseFolderCommand is disabled when no picker is wired (e.g. in headless tests) -->
               <Button Grid.Column="1"

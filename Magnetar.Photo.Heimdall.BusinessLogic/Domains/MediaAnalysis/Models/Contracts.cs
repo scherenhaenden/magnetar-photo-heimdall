@@ -1,4 +1,4 @@
-namespace Magnetar.Photo.Heimdall.MediaAnalysis;
+namespace Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Models;
 
 // ---------------------------------------------------------------------------
 // Date resolution

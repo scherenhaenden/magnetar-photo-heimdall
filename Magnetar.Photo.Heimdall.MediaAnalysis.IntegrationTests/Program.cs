@@ -1,5 +1,6 @@
 using System.Text;
-using Magnetar.Photo.Heimdall.MediaAnalysis;
+using Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Models;
+using Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 Console.WriteLine("=== Starting MediaAnalysis Integration Tests ===");
