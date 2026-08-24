@@ -11,6 +11,10 @@ empty UI shells, or execute destructive operations without confirmation.
 Heimdall must provide the useful user outcome with one coherent desktop
 experience and the safety guarantees documented below.
 
+For the atom-by-atom implementation status of these specifications, see
+[User feature progress](../user-feature-progress.md). The specification states
+the target product; the progress table states what a user can actually do now.
+
 | User-facing capability | Specification |
 | --- | --- |
 | Configure libraries | [01-library-roots.md](01-library-roots.md) |
