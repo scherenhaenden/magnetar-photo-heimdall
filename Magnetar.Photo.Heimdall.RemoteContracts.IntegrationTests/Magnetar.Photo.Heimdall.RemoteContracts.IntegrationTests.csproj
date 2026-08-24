@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>Magnetar.Photo.Heimdall.RemoteContracts.IntegrationTests</AssemblyName>
+    <RootNamespace>Magnetar.Photo.Heimdall.RemoteContracts.IntegrationTests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Magnetar.Photo.Heimdall.RemoteContracts/Magnetar.Photo.Heimdall.RemoteContracts.csproj" />
+  </ItemGroup>
+</Project>
