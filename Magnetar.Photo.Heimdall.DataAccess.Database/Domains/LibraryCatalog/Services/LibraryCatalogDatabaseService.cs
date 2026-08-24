@@ -1,19 +1,18 @@
-using Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Models;
-using Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Mappers;
-using Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Models;
+using Magnetar.Photo.Heimdall.DataAccess.Database.Domains.LibraryCatalog.Mappers;
+using Magnetar.Photo.Heimdall.DataAccess.Database.Domains.LibraryCatalog.Models;
 using Microsoft.Data.Sqlite;
 
-namespace Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Services;
+namespace Magnetar.Photo.Heimdall.DataAccess.Database.Domains.LibraryCatalog.Services;
 
-public interface ILibraryCatalog
+public interface ILibraryCatalogDatabaseService
 {
     Task InitializeAsync(CancellationToken cancellationToken = default);
-    Task<LibraryRoot> AddLibraryAsync(string displayName, string canonicalPath, CancellationToken cancellationToken = default);
-    Task UpsertAssetAsync(Guid libraryId, DiscoveredMediaFile file, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<CataloguedAsset>> ListAssetsAsync(Guid libraryId, CancellationToken cancellationToken = default);
+    Task<LibraryRootDatabaseModel> AddLibraryAsync(string displayName, string canonicalPath, CancellationToken cancellationToken = default);
+    Task UpsertAssetAsync(Guid libraryId, string relativePath, long length, DateTimeOffset lastWriteUtc, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<CataloguedAssetDatabaseModel>> ListAssetsAsync(Guid libraryId, CancellationToken cancellationToken = default);
 }
 
-public sealed class SqliteLibraryCatalog(string databasePath) : ILibraryCatalog
+public sealed class SqliteLibraryCatalogDatabaseService(string databasePath) : ILibraryCatalogDatabaseService
 {
     private readonly string _connectionString = new SqliteConnectionStringBuilder { DataSource = databasePath }.ToString();
 
@@ -42,11 +41,11 @@ public sealed class SqliteLibraryCatalog(string databasePath) : ILibraryCatalog
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
-    public async Task<LibraryRoot> AddLibraryAsync(string displayName, string canonicalPath, CancellationToken cancellationToken = default)
+    public async Task<LibraryRootDatabaseModel> AddLibraryAsync(string displayName, string canonicalPath, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
         ArgumentException.ThrowIfNullOrWhiteSpace(canonicalPath);
-        var library = new LibraryRoot(Guid.NewGuid(), displayName, Path.GetFullPath(canonicalPath), DateTimeOffset.UtcNow);
+        var library = new LibraryRootDatabaseModel(Guid.NewGuid(), displayName, Path.GetFullPath(canonicalPath), DateTimeOffset.UtcNow);
         await using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
         var command = connection.CreateCommand();
@@ -59,7 +58,7 @@ public sealed class SqliteLibraryCatalog(string databasePath) : ILibraryCatalog
         return library;
     }
 
-    public async Task UpsertAssetAsync(Guid libraryId, DiscoveredMediaFile file, CancellationToken cancellationToken = default)
+    public async Task UpsertAssetAsync(Guid libraryId, string relativePath, long length, DateTimeOffset lastWriteUtc, CancellationToken cancellationToken = default)
     {
         await using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
@@ -71,15 +70,15 @@ public sealed class SqliteLibraryCatalog(string databasePath) : ILibraryCatalog
             """;
         command.Parameters.AddWithValue("$id", Guid.NewGuid().ToString("D"));
         command.Parameters.AddWithValue("$libraryId", libraryId.ToString("D"));
-        command.Parameters.AddWithValue("$path", file.RelativePath);
-        command.Parameters.AddWithValue("$length", file.Length);
-        command.Parameters.AddWithValue("$lastWrite", file.LastWriteUtc.ToString("O"));
+        command.Parameters.AddWithValue("$path", relativePath);
+        command.Parameters.AddWithValue("$length", length);
+        command.Parameters.AddWithValue("$lastWrite", lastWriteUtc.ToString("O"));
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<CataloguedAsset>> ListAssetsAsync(Guid libraryId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<CataloguedAssetDatabaseModel>> ListAssetsAsync(Guid libraryId, CancellationToken cancellationToken = default)
     {
-        var assets = new List<CataloguedAsset>();
+        var assets = new List<CataloguedAssetDatabaseModel>();
         await using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
         var command = connection.CreateCommand();
@@ -88,7 +87,7 @@ public sealed class SqliteLibraryCatalog(string databasePath) : ILibraryCatalog
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
-            assets.Add(CataloguedAssetMapper.FromReader(reader, libraryId));
+            assets.Add(CataloguedAssetDatabaseMapper.FromReader(reader, libraryId));
         }
 
         return assets;
