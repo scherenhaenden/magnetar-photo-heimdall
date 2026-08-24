@@ -87,6 +87,8 @@
           <StackPanel Orientation="Horizontal" Spacing="8">
             <Button Content="Explore library preview" Click="ShowExploreLibraryPreview" />
             <Button Content="Review duplicates preview" Click="ShowDuplicateDecisionPreview" />
+            <Button Content="Organize preview" Click="ShowOrganizePreview" />
+            <Button Content="Review plan preview" Click="ShowReviewPlanPreview" />
           </StackPanel>
         </StackPanel>
       </Border>

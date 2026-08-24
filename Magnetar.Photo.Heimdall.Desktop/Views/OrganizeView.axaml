@@ -29,7 +29,7 @@
           <Border Background="#122131" BorderBrush="#3B494C" BorderThickness="1" CornerRadius="8" Padding="12">
             <StackPanel Spacing="10">
               <TextBlock Text="PATRÓN DE CARPETA" FontSize="10" FontWeight="Bold" Foreground="#BAC9CC"/>
-              <TextBox Text="Fotos/{capture.year}/{capture.month:02}/{capture.day:02}" Background="#0F172A" FontFamily="Consolas"/>
+              <TextBox Text="{}Fotos/{capture.year}/{capture.month:02}/{capture.day:02}" Background="#0F172A" FontFamily="Consolas"/>
               <WrapPanel ItemHeight="26" ItemWidth="132">
                 <Border Background="#1C2B3C" BorderBrush="#3B494C" BorderThickness="1" CornerRadius="4" Padding="6,3" Margin="0,0,6,6"><TextBlock Text="◷  capture.year" FontSize="11" FontFamily="Consolas"/></Border>
                 <Border Background="#1C2B3C" BorderBrush="#3B494C" BorderThickness="1" CornerRadius="4" Padding="6,3" Margin="0,0,6,6"><TextBlock Text="▣  capture.month" FontSize="11" FontFamily="Consolas"/></Border>

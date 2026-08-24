@@ -13,6 +13,12 @@ public partial class MainWindow : Window
     private void ShowDuplicateDecisionPreview(object? sender, RoutedEventArgs e) =>
         ShowPreview("Heimdall — Review duplicates", new DuplicateDecisionView());
 
+    private void ShowOrganizePreview(object? sender, RoutedEventArgs e) =>
+        ShowPreview("Heimdall — Organize photos", new OrganizeView());
+
+    private void ShowReviewPlanPreview(object? sender, RoutedEventArgs e) =>
+        ShowPreview("Heimdall — Review plan", new ReviewPlanView());
+
     private void ShowPreview(string title, Control content)
     {
         var preview = new Window
