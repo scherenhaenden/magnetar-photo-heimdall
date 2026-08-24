@@ -1,5 +1,9 @@
-using Avalonia.Platform;
+using Avalonia;
+using Avalonia.Headless;
+using Avalonia.Styling;
+using Magnetar.Photo.Heimdall.Desktop;
 using Magnetar.Photo.Heimdall.Desktop.Controls;
+using Magnetar.Photo.Heimdall.Desktop.Views;
 using Xunit;
 
 namespace Magnetar.Photo.Heimdall.Desktop.IntegrationTests;
@@ -12,15 +16,19 @@ namespace Magnetar.Photo.Heimdall.Desktop.IntegrationTests;
 public sealed class HeimdallShellIntegrationTests
 {
     [Fact]
-    public void Production_shell_resource_targets_only_the_dedicated_shell_control()
+    public void Production_window_loads_one_dedicated_non_recursive_shell()
     {
-        var resourceUri = new Uri("avares://Magnetar.Photo.Heimdall.Desktop/Design/HeimdallShell.axaml");
-        using var resource = AssetLoader.Open(resourceUri);
-        using var reader = new StreamReader(resource);
-        var xaml = reader.ReadToEnd();
+        AppBuilder.Configure<App>()
+            .UseHeadless(new AvaloniaHeadlessPlatformOptions())
+            .SetupWithoutStarting();
+        var application = (App)Application.Current!;
+        application.Initialize();
 
-        Assert.Contains("TargetType=\"controls:HeimdallShell\"", xaml, StringComparison.Ordinal);
-        Assert.DoesNotContain("TargetType=\"ContentControl\"", xaml, StringComparison.Ordinal);
+        var window = new MainWindow();
+        var shell = Assert.IsType<HeimdallShell>(window.Content);
+        var theme = Assert.IsType<ControlTheme>(shell.Theme);
+
+        Assert.Equal(typeof(HeimdallShell), theme.TargetType);
         Assert.True(typeof(Avalonia.Controls.ContentControl).IsAssignableFrom(typeof(HeimdallShell)));
     }
 }
