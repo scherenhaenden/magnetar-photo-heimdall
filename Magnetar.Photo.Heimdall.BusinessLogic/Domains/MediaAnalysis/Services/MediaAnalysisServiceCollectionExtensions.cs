@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
+using Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Models;
 
-namespace Magnetar.Photo.Heimdall.MediaAnalysis;
+namespace Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Services;
 
 public static class MediaAnalysisServiceCollectionExtensions
 {

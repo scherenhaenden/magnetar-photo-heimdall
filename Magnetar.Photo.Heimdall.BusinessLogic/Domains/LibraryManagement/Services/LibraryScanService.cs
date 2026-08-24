@@ -1,9 +1,10 @@
-using Magnetar.Photo.Heimdall.DataAccess;
-using Magnetar.Photo.Heimdall.DataAccess.IO;
+using Magnetar.Photo.Heimdall.BusinessLogic.Domains.LibraryManagement.Models;
+using Magnetar.Photo.Heimdall.BusinessLogic.Domains.LibraryManagement.Mappers;
+using Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Models;
+using Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Services;
+using Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Services;
 
-namespace Magnetar.Photo.Heimdall.BusinessLogic;
-
-public sealed record ScanResult(Guid LibraryId, int CataloguedAssetCount);
+namespace Magnetar.Photo.Heimdall.BusinessLogic.Domains.LibraryManagement.Services;
 
 public sealed class LibraryScanService(ILibraryCatalog catalog, IMediaFileScanner scanner)
 {
@@ -27,6 +28,6 @@ public sealed class LibraryScanService(ILibraryCatalog catalog, IMediaFileScanne
             count++;
         }
 
-        return new ScanResult(library.Id, count);
+        return ScanResultMapper.FromCatalogueCount(library.Id, count);
     }
 }

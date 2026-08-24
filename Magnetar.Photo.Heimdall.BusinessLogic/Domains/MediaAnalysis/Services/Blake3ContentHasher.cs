@@ -1,6 +1,8 @@
 using Blake3;
+using Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Models;
+using System.Text;
 
-namespace Magnetar.Photo.Heimdall.MediaAnalysis;
+namespace Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Services;
 
 /// <summary>
 /// Computes BLAKE3 content hashes for media files using streaming I/O.
@@ -20,6 +22,7 @@ public sealed class Blake3ContentHasher : IContentHasher
 
     private const int ReadBufferSize   = 128 * 1024;       // 128 KiB per I/O call
     private const long QuickWindowSize = 1024L * 1024;     // 1 MiB head + 1 MiB tail
+    private static readonly byte[] QuickDomain = Encoding.ASCII.GetBytes("Magnetar.Photo.Heimdall/quick-fingerprint/v1\0");
 
     public async ValueTask<HashEvidence> ComputeAsync(
         string filePath,
@@ -41,14 +44,16 @@ public sealed class Blake3ContentHasher : IContentHasher
         using var fullHasher  = Hasher.New();
         using var quickHasher = Hasher.New();
 
-        // Mix file length into the quick fingerprint first (version-1 scheme).
+        // Domain-separate the quick scheme and mix its version and file length first.
+        quickHasher.Update(QuickDomain);
         Span<byte> lengthBytes = stackalloc byte[8];
-        System.Buffers.Binary.BinaryPrimitives.WriteInt64LittleEndian(lengthBytes, fileLength);
+        System.Buffers.Binary.BinaryPrimitives.WriteInt64BigEndian(lengthBytes, fileLength);
         quickHasher.Update(lengthBytes);
 
         var buffer   = new byte[ReadBufferSize];
         long position = 0;
-        int  read;
+        var wroteTailSeparator = false;
+        int read;
 
         while ((read = await stream.ReadAsync(buffer, ct).ConfigureAwait(false)) != 0)
         {
@@ -70,6 +75,11 @@ public sealed class Blake3ContentHasher : IContentHasher
             var tailOffset = (int)Math.Clamp(tailStart - position, 0L, read);
             if (tailOffset < read && position + tailOffset >= QuickWindowSize)
             {
+                if (!wroteTailSeparator)
+                {
+                    quickHasher.Update("\0tail\0"u8);
+                    wroteTailSeparator = true;
+                }
                 quickHasher.Update(chunk[tailOffset..]);
             }
 
@@ -78,7 +88,7 @@ public sealed class Blake3ContentHasher : IContentHasher
 
         return new HashEvidence(
             Algorithm:        "BLAKE3",
-            Version:          FingerprintVersion,
+            QuickFingerprintVersion: FingerprintVersion,
             FullHash:         fullHasher.Finalize().ToString(),
             QuickFingerprint: quickHasher.Finalize().ToString(),
             FileLength:       fileLength);

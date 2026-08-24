@@ -1,4 +1,4 @@
-namespace Magnetar.Photo.Heimdall.MediaAnalysis;
+namespace Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Models;
 
 // ---------------------------------------------------------------------------
 // Date resolution
@@ -61,7 +61,7 @@ public sealed record ResolvedCaptureDate(
 /// <param name="FileLength">File size in bytes at the time of hashing.</param>
 public sealed record HashEvidence(
     string Algorithm,
-    int Version,
+    int QuickFingerprintVersion,
     string FullHash,
     string QuickFingerprint,
     long FileLength);
