@@ -11,6 +11,7 @@ namespace Magnetar.Photo.Heimdall.Desktop.ViewModels;
 public sealed class SummaryScreenViewModel : INotifyPropertyChanged
 {
     private readonly LibraryScreenViewModel _libraryScreen;
+    private readonly string _presentationDataLabel = "Datos de presentación — backend pendiente";
 
     public SummaryScreenViewModel(LibraryScreenViewModel libraryScreen)
     {
@@ -21,13 +22,13 @@ public sealed class SummaryScreenViewModel : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public int CataloguedAssetCount => _libraryScreen.CataloguedCount;
-    public string CurrentLibraryName => _libraryScreen.DisplayName;
+    public string CurrentLibraryName => _libraryScreen.LastScannedLibraryName ?? "No library scanned";
     public string CatalogStatus => _libraryScreen.StatusMessage;
     public bool IsScanning => _libraryScreen.IsBusy;
     public bool HasCataloguedAssets => _libraryScreen.HasCataloguedCount;
 
     /// <summary>Explicitly labels cards whose backend capability is not built yet.</summary>
-    public string PresentationDataLabel => "Datos de presentación — backend pendiente";
+    public string PresentationDataLabel => _presentationDataLabel;
 
     private void OnLibraryScreenPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
     {
@@ -38,7 +39,7 @@ public sealed class SummaryScreenViewModel : INotifyPropertyChanged
                 OnPropertyChanged(nameof(CataloguedAssetCount));
                 OnPropertyChanged(nameof(HasCataloguedAssets));
                 break;
-            case nameof(LibraryScreenViewModel.DisplayName):
+            case nameof(LibraryScreenViewModel.LastScannedLibraryName):
                 OnPropertyChanged(nameof(CurrentLibraryName));
                 break;
             case nameof(LibraryScreenViewModel.StatusMessage):

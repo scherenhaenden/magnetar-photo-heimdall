@@ -41,8 +41,8 @@
           <Border Grid.Row="1" Height="1" Background="#263B494C" />
           <Grid Grid.Row="2" ColumnDefinitions="3*,*,*,*,*,Auto" ColumnSpacing="12" Margin="16" IsVisible="{Binding HasCataloguedCount}">
             <StackPanel Spacing="3">
-              <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="#D4E4FA" />
-              <TextBlock Classes="path" Text="{Binding RootPath}" TextTrimming="CharacterEllipsis" MaxWidth="380" />
+              <TextBlock Text="{Binding LastScannedLibraryName}" FontWeight="SemiBold" Foreground="#D4E4FA" />
+              <TextBlock Classes="path" Text="{Binding LastScannedRootPath}" TextTrimming="CharacterEllipsis" MaxWidth="380" />
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6"><Ellipse Width="8" Height="8" Fill="#00E5FF" VerticalAlignment="Center" /><TextBlock Text="Local" Foreground="#00E5FF" /></StackPanel>
             <TextBlock Grid.Column="2" Text="—" Foreground="#BAC9CC" />
@@ -62,12 +62,12 @@
           <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
             <StackPanel Spacing="6">
               <TextBlock Text="Nombre" Foreground="#D4E4FA" />
-              <TextBox Text="{Binding DisplayName}" Watermark="Archivo principal" IsEnabled="{Binding IsInputEnabled}" />
+              <TextBox Text="{Binding DisplayName}" PlaceholderText="Archivo principal" IsEnabled="{Binding IsInputEnabled}" />
             </StackPanel>
             <StackPanel Grid.Column="1" Spacing="6">
               <TextBlock Text="Ruta" Foreground="#D4E4FA" />
               <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                <TextBox Text="{Binding RootPath}" Watermark="/Volumes/Archivo/Fotos" IsEnabled="{Binding IsInputEnabled}" />
+                <TextBox Text="{Binding RootPath}" PlaceholderText="/Volumes/Archivo/Fotos" IsEnabled="{Binding IsInputEnabled}" />
                 <Button Grid.Column="1" Content="Elegir carpeta…" Command="{Binding ChooseFolderCommand}" />
               </Grid>
             </StackPanel>
