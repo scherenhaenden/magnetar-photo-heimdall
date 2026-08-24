@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- Compiled bindings require x:DataType on every binding site;
+         disabling the default avoids AVL warnings that become errors
+         under TreatWarningsAsErrors=true inherited from Directory.Build.props. -->
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- 11.3.20 is the latest stable 11.x release (net10.0 compatible). -->
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.20" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.20" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.20" />
+    <!-- Override the transitive Tmds.DBus.Protocol pulled in by Avalonia.
+         Versions <= 0.20.0 have a known high-severity vulnerability (GHSA-xrw6-gwf8-vvr9).
+         NuGet resolves to the highest explicitly requested version, so pinning
+         0.95.0 here eliminates the NU1903 advisory that TreatWarningsAsErrors
+         converts into a build error. -->
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.95.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Composition root: Desktop wires PresentationLogic → BusinessLogic → DataAccess → DataAccess.IO.
+         PresentationLogic is the only layer the ViewModel depends on directly. -->
+    <ProjectReference Include="../Magnetar.Photo.Heimdall.PresentationLogic/Magnetar.Photo.Heimdall.PresentationLogic.csproj" />
+    <ProjectReference Include="../Magnetar.Photo.Heimdall.BusinessLogic/Magnetar.Photo.Heimdall.BusinessLogic.csproj" />
+    <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess/Magnetar.Photo.Heimdall.DataAccess.csproj" />
+    <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess.IO/Magnetar.Photo.Heimdall.DataAccess.IO.csproj" />
+  </ItemGroup>
+</Project>
