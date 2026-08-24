@@ -22,6 +22,7 @@ public sealed class RemoteAgentTransportDataAccessNetService : IRemoteAgentTrans
             throw new ArgumentException("Agent id is required.", nameof(endpoint));
         }
 
+        ArgumentNullException.ThrowIfNull(endpoint.ControlEndpoint);
         if (!endpoint.ControlEndpoint.IsAbsoluteUri || endpoint.ControlEndpoint.Scheme is not ("https" or "http"))
         {
             throw new ArgumentException("Remote agent control endpoint must be an absolute HTTP(S) URI.", nameof(endpoint));

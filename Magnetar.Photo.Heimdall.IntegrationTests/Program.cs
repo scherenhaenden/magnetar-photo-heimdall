@@ -55,6 +55,10 @@ try
         "studio-nas", new Uri("https://studio-nas.example.test/agent"), RemoteAgentTransportDataAccessNetKind.SshTunnel));
     Assert(registeredEndpoint.AgentId == "studio-nas" && registeredEndpoint.TransportKind == RemoteAgentTransportDataAccessNetKind.SshTunnel,
         "The DataAccess.Net DI boundary must register and validate a remote agent endpoint without opening a network connection.");
+    AssertThrows<ArgumentNullException>(
+        () => remoteTransport.RegisterEndpoint(new RemoteAgentEndpointDataAccessNetModel(
+            "invalid-agent", null!, RemoteAgentTransportDataAccessNetKind.SshTunnel)),
+        "The DataAccess.Net boundary must reject a null endpoint before URI dereferencing.");
 
     var metadataReader = new MetadataExtractorMediaMetadataReader();
     var metadataFreePath = Path.Combine(testRoot, "no-metadata.bin");
@@ -113,6 +117,21 @@ static void Assert(bool condition, string message)
     {
         throw new InvalidOperationException(message);
     }
+}
+
+static void AssertThrows<TException>(Action action, string message)
+    where TException : Exception
+{
+    try
+    {
+        action();
+    }
+    catch (TException)
+    {
+        return;
+    }
+
+    throw new InvalidOperationException(message);
 }
 
 static byte[] CreateMvhdV1(DateTimeOffset capturedAt)
