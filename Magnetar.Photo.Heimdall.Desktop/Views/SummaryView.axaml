@@ -1,0 +1,109 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Magnetar.Photo.Heimdall.Desktop.Views.SummaryView">
+  <UserControl.Styles>
+    <Style Selector="Border.metric-card">
+      <Setter Property="Background" Value="#B30D1C2D" />
+      <Setter Property="BorderBrush" Value="#263B494C" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="16" />
+    </Style>
+    <Style Selector="TextBlock.eyebrow">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="#BAC9CC" />
+    </Style>
+    <Style Selector="TextBlock.metric">
+      <Setter Property="FontSize" Value="24" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="Foreground" Value="#C3F5FF" />
+    </Style>
+    <Style Selector="Border.panel">
+      <Setter Property="Background" Value="#B30D1C2D" />
+      <Setter Property="BorderBrush" Value="#263B494C" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="20" />
+    </Style>
+  </UserControl.Styles>
+
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Margin="24" Spacing="16" MaxWidth="1280">
+      <StackPanel Spacing="5">
+        <TextBlock Text="Buenos días" FontSize="32" FontWeight="SemiBold" Foreground="#D4E4FA" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Ellipse Width="8" Height="8" Fill="#00E5FF" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding CatalogStatus}" Foreground="#BAC9CC" />
+        </StackPanel>
+      </StackPanel>
+
+      <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="12">
+        <Border Classes="metric-card">
+          <StackPanel Spacing="8"><TextBlock Classes="eyebrow" Text="ACTIVOS CATALOGADOS" /><TextBlock Classes="metric" Text="{Binding CataloguedAssetCount}" /></StackPanel>
+        </Border>
+        <Border Grid.Column="1" Classes="metric-card">
+          <StackPanel Spacing="8"><TextBlock Classes="eyebrow" Text="ALMACENAMIENTO" /><TextBlock Classes="metric" Text="12,8 TB" /><TextBlock FontSize="10" Foreground="#849396" Text="{Binding PresentationDataLabel}" /></StackPanel>
+        </Border>
+        <Border Grid.Column="2" Classes="metric-card" BorderBrush="#66FFB4AB">
+          <StackPanel Spacing="8"><TextBlock Classes="eyebrow" Text="CANDIDATOS DUPLICADOS" /><TextBlock FontSize="24" FontWeight="Bold" Foreground="#FFB4AB" Text="1.842" /><TextBlock FontSize="10" Foreground="#849396" Text="{Binding PresentationDataLabel}" /></StackPanel>
+        </Border>
+        <Border Grid.Column="3" Classes="metric-card">
+          <StackPanel Spacing="8"><TextBlock Classes="eyebrow" Text="SIN FECHA FIABLE" /><TextBlock Classes="metric" Text="37" /><TextBlock FontSize="10" Foreground="#849396" Text="{Binding PresentationDataLabel}" /></StackPanel>
+        </Border>
+        <Border Grid.Column="4" Classes="metric-card" BorderBrush="#6600E5FF">
+          <StackPanel Spacing="8"><TextBlock Classes="eyebrow" Text="OPERACIONES ACTIVAS" /><TextBlock Classes="metric" Text="2" /><TextBlock FontSize="10" Foreground="#849396" Text="{Binding PresentationDataLabel}" /></StackPanel>
+        </Border>
+      </Grid>
+
+      <Grid ColumnDefinitions="2*,*" ColumnSpacing="12">
+        <StackPanel Spacing="12">
+          <Border Classes="panel">
+            <StackPanel Spacing="14">
+              <TextBlock Text="▣  Estado de bibliotecas" FontSize="18" FontWeight="SemiBold" Foreground="#D4E4FA" />
+              <Grid ColumnDefinitions="2*,*,*,*" ColumnSpacing="12">
+                <TextBlock Classes="eyebrow" Text="VOLUMEN" />
+                <TextBlock Grid.Column="1" Classes="eyebrow" Text="CAPACIDAD" TextAlignment="Right" />
+                <TextBlock Grid.Column="2" Classes="eyebrow" Text="ACTIVOS" TextAlignment="Right" />
+                <TextBlock Grid.Column="3" Classes="eyebrow" Text="ESTADO" TextAlignment="Right" />
+              </Grid>
+              <Border Height="1" Background="#263B494C" />
+              <Grid ColumnDefinitions="2*,*,*,*" ColumnSpacing="12">
+                <TextBlock Text="{Binding CurrentLibraryName}" Foreground="#D4E4FA" />
+                <TextBlock Grid.Column="1" Text="—" TextAlignment="Right" Foreground="#BAC9CC" />
+                <TextBlock Grid.Column="2" Text="{Binding CataloguedAssetCount}" TextAlignment="Right" Foreground="#BAC9CC" />
+                <TextBlock Grid.Column="3" Text="Local" TextAlignment="Right" Foreground="#00E5FF" />
+              </Grid>
+              <TextBlock Text="La biblioteca y su conteo son datos reales del último escaneo." FontSize="11" Foreground="#849396" />
+            </StackPanel>
+          </Border>
+          <Border Classes="panel">
+            <StackPanel Spacing="12">
+              <TextBlock Text="↔  Operaciones actuales" FontSize="18" FontWeight="SemiBold" Foreground="#D4E4FA" />
+              <Border Background="#0D1C2D" BorderBrush="#263B494C" BorderThickness="1" CornerRadius="4" Padding="12">
+                <StackPanel Spacing="8">
+                  <Grid ColumnDefinitions="*,Auto"><TextBlock Text="Hash BLAKE3" Foreground="#D4E4FA" /><TextBlock Grid.Column="1" Text="62% · 318 MB/s" Foreground="#00E5FF" /></Grid>
+                  <ProgressBar Value="62" Maximum="100" Height="4" />
+                </StackPanel>
+              </Border>
+              <TextBlock Text="{Binding PresentationDataLabel}" FontSize="11" Foreground="#849396" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+        <Border Grid.Column="1" Classes="panel">
+          <StackPanel Spacing="12">
+            <TextBlock Text="⚠  Requiere atención" FontSize="18" FontWeight="SemiBold" Foreground="#FFB4AB" />
+            <TextBlock Text="14 archivos cambiaron" Foreground="#D4E4FA" /><TextBlock Text="Revisar metadatos" FontSize="11" Foreground="#BAC9CC" />
+            <Separator />
+            <TextBlock Text="3 conflictos de nombre" Foreground="#FFB4AB" /><TextBlock Text="En SSD importación" FontSize="11" Foreground="#BAC9CC" />
+            <Separator />
+            <TextBlock Text="NAS Studio alcanzó 79 °C" Foreground="#FFB4AB" /><TextBlock Text="Rendimiento limitado" FontSize="11" Foreground="#BAC9CC" />
+            <Separator />
+            <TextBlock Text="421 GB recuperables" Foreground="#D4E4FA" /><TextBlock Text="Caché obsoleta" FontSize="11" Foreground="#BAC9CC" />
+            <TextBlock Text="{Binding PresentationDataLabel}" FontSize="11" Foreground="#849396" Margin="0,12,0,0" />
+          </StackPanel>
+        </Border>
+      </Grid>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

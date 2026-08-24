@@ -18,6 +18,8 @@ public sealed class LibraryScreenViewModel : INotifyPropertyChanged
     private string _statusMessage = "Add a library folder to start cataloguing your photos.";
     private string? _errorMessage;
     private int _cataloguedCount;
+    private string? _lastScannedLibraryName;
+    private string? _lastScannedRootPath;
     private bool _isBusy;
 
     /// <param name="facade">Presentation-layer facade; the only dependency this VM knows about.</param>
@@ -32,7 +34,7 @@ public sealed class LibraryScreenViewModel : INotifyPropertyChanged
     {
         _facade = facade;
 
-        AddAndScanCommand = new AsyncCommand(ExecuteAddAndScanAsync, CanAddAndScan);
+        AddAndScanCommand = new AsyncCommand(AddAndScanAsync, CanAddAndScan);
 
         ChooseFolderCommand = folderPicker is not null
             ? new AsyncCommand(async () =>
@@ -103,6 +105,20 @@ public sealed class LibraryScreenViewModel : INotifyPropertyChanged
     /// <summary><see langword="true"/> after a successful scan that found at least one asset.</summary>
     public bool HasCataloguedCount => _cataloguedCount > 0;
 
+    /// <summary>Library name from the most recent successful scan, never the editable draft.</summary>
+    public string? LastScannedLibraryName
+    {
+        get => _lastScannedLibraryName;
+        private set => SetField(ref _lastScannedLibraryName, value);
+    }
+
+    /// <summary>Library root from the most recent successful scan, never the editable draft.</summary>
+    public string? LastScannedRootPath
+    {
+        get => _lastScannedRootPath;
+        private set => SetField(ref _lastScannedRootPath, value);
+    }
+
     /// <summary>
     ///   <see langword="true"/> while an operation is running.
     ///   Also used to disable input controls during scanning.
@@ -130,16 +146,18 @@ public sealed class LibraryScreenViewModel : INotifyPropertyChanged
         !string.IsNullOrWhiteSpace(DisplayName) &&
         !string.IsNullOrWhiteSpace(RootPath);
 
-    private async Task ExecuteAddAndScanAsync()
+    /// <summary>Runs a real catalog scan while retaining the last successful summary on failure.</summary>
+    public async Task AddAndScanAsync()
     {
         IsBusy = true;
         ErrorMessage = null;
-        CataloguedCount = 0;
         StatusMessage = "Adding library and scanning media…";
         try
         {
             var result = await _facade.AddAndScanAsync(DisplayName.Trim(), RootPath.Trim());
             CataloguedCount = result.Scan.CataloguedAssetCount;
+            LastScannedLibraryName = result.Library.DisplayName;
+            LastScannedRootPath = result.Library.CanonicalPath;
             StatusMessage = $"{result.Library.DisplayName}: catalogued {result.Scan.CataloguedAssetCount} media assets.";
         }
         catch (Exception ex)
