@@ -1,0 +1,82 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Magnetar.Photo.Heimdall.Desktop.Views.OrganizeView"
+             MinWidth="760" MinHeight="520"
+             Background="#051424"
+             Foreground="#D4E4FA"
+             FontFamily="avares://Avalonia.Fonts.Inter/Assets#Inter">
+  <!-- Presentation-only slice. Rule evaluation and plan generation are intentionally not wired yet. -->
+  <Grid RowDefinitions="*,Auto">
+    <Grid Grid.Row="0" ColumnDefinitions="*,*" ClipToBounds="True">
+      <ScrollViewer Grid.Column="0" BorderBrush="#263849" BorderThickness="0,0,1,0">
+        <StackPanel Margin="24" Spacing="18">
+          <StackPanel Spacing="4">
+            <TextBlock Text="Configuración de reglas" FontSize="20" FontWeight="SemiBold"/>
+            <TextBlock Text="Define cómo se estructurarán y renombrarán los archivos." Foreground="#BAC9CC"/>
+            <TextBlock Text="PRESENTACIÓN · motor de reglas pendiente" FontSize="10" FontWeight="Bold" Foreground="#00DAF3" Margin="0,4,0,0"/>
+          </StackPanel>
+
+          <StackPanel Spacing="7">
+            <TextBlock Text="PRESET DE ORGANIZACIÓN" FontSize="10" FontWeight="Bold" Foreground="#BAC9CC"/>
+            <ComboBox SelectedIndex="0" Background="#0F172A">
+              <ComboBoxItem Content="Estándar (Año / Mes / Día)"/>
+              <ComboBoxItem Content="Proyecto profesional (Cliente / Fecha)"/>
+              <ComboBoxItem Content="Archivo RAW (Cámara / Año)"/>
+              <ComboBoxItem Content="Personalizado"/>
+            </ComboBox>
+          </StackPanel>
+
+          <Border Background="#122131" BorderBrush="#3B494C" BorderThickness="1" CornerRadius="8" Padding="12">
+            <StackPanel Spacing="10">
+              <TextBlock Text="PATRÓN DE CARPETA" FontSize="10" FontWeight="Bold" Foreground="#BAC9CC"/>
+              <TextBox Text="Fotos/{capture.year}/{capture.month:02}/{capture.day:02}" Background="#0F172A" FontFamily="Consolas"/>
+              <WrapPanel ItemHeight="26" ItemWidth="132">
+                <Border Background="#1C2B3C" BorderBrush="#3B494C" BorderThickness="1" CornerRadius="4" Padding="6,3" Margin="0,0,6,6"><TextBlock Text="◷  capture.year" FontSize="11" FontFamily="Consolas"/></Border>
+                <Border Background="#1C2B3C" BorderBrush="#3B494C" BorderThickness="1" CornerRadius="4" Padding="6,3" Margin="0,0,6,6"><TextBlock Text="▣  capture.month" FontSize="11" FontFamily="Consolas"/></Border>
+                <Border Background="#1C2B3C" BorderBrush="#3B494C" BorderThickness="1" CornerRadius="4" Padding="6,3" Margin="0,0,6,6"><TextBlock Text="□  project.name" FontSize="11" FontFamily="Consolas"/></Border>
+              </WrapPanel>
+            </StackPanel>
+          </Border>
+
+          <Border Background="#122131" BorderBrush="#3B494C" BorderThickness="1" CornerRadius="8" Padding="12">
+            <StackPanel Spacing="10">
+              <TextBlock Text="PATRÓN DE ARCHIVO" FontSize="10" FontWeight="Bold" Foreground="#BAC9CC"/>
+              <TextBox Text="{}{capture.date:yyyy-MM-dd}-{capture.time:HH-mm-ss-fff}_{camera.model}_{hash:12}{extension}" Background="#0F172A" FontFamily="Consolas"/>
+              <WrapPanel ItemHeight="26" ItemWidth="118">
+                <Border Background="#1C2B3C" BorderBrush="#3B494C" BorderThickness="1" CornerRadius="4" Padding="6,3" Margin="0,0,6,6"><TextBlock Text="◷  date" FontSize="11" FontFamily="Consolas"/></Border>
+                <Border Background="#1C2B3C" BorderBrush="#3B494C" BorderThickness="1" CornerRadius="4" Padding="6,3" Margin="0,0,6,6"><TextBlock Text="◉  camera" FontSize="11" FontFamily="Consolas"/></Border>
+                <Border Background="#1C2B3C" BorderBrush="#3B494C" BorderThickness="1" CornerRadius="4" Padding="6,3" Margin="0,0,6,6"><TextBlock Text="#  hash:12" FontSize="11" FontFamily="Consolas"/></Border>
+                <Border Background="#1C2B3C" BorderBrush="#3B494C" BorderThickness="1" CornerRadius="4" Padding="6,3" Margin="0,0,6,6"><TextBlock Text="+  sequence" FontSize="11" FontFamily="Consolas"/></Border>
+              </WrapPanel>
+            </StackPanel>
+          </Border>
+
+          <Border BorderBrush="#3B494C" BorderThickness="0,1,0,0" Padding="0,16,0,0">
+            <StackPanel Spacing="12">
+              <TextBlock Text="⚙  Estrategias de colisión" FontWeight="SemiBold"/>
+              <StackPanel Spacing="6"><TextBlock Text="METADATA FALTANTE" FontSize="10" FontWeight="Bold" Foreground="#BAC9CC"/><ComboBox SelectedIndex="0" Background="#0F172A"><ComboBoxItem Content="Usar fecha de modificación del archivo"/><ComboBoxItem Content="Mover a carpeta Sin_fecha"/><ComboBoxItem Content="Requiere revisión"/></ComboBox></StackPanel>
+              <StackPanel Spacing="6"><TextBlock Text="CONFLICTO DE NOMBRE" FontSize="10" FontWeight="Bold" Foreground="#BAC9CC"/><ComboBox SelectedIndex="0" Background="#0F172A"><ComboBoxItem Content="Añadir sufijo BLAKE3 determinista"/><ComboBoxItem Content="Omitir si el hash coincide"/><ComboBoxItem Content="Requiere revisión"/></ComboBox></StackPanel>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </ScrollViewer>
+
+      <ScrollViewer Grid.Column="1" Background="#0B1016">
+        <StackPanel Margin="24" Spacing="14">
+          <Grid ColumnDefinitions="*,Auto"><StackPanel Spacing="4"><TextBlock Text="Vista previa" FontSize="20" FontWeight="SemiBold"/><TextBlock Text="Ejemplos de presentación; no se han analizado archivos." Foreground="#BAC9CC" FontSize="12"/></StackPanel><TextBlock Grid.Column="1" Text="↻" FontSize="20" Foreground="#00DAF3"/></Grid>
+          <Border Background="#161D26" BorderBrush="#3B494C" BorderThickness="1" CornerRadius="8" Padding="12"><StackPanel Spacing="8"><Grid ColumnDefinitions="*,Auto"><TextBlock Text="IMG_8932.CR2" FontFamily="Consolas" FontSize="11" Foreground="#BAC9CC"/><Border Grid.Column="1" Background="#00363D" BorderBrush="#00626E" BorderThickness="1" CornerRadius="4" Padding="6,2"><TextBlock Text="✓ SEGURO" FontSize="10" FontWeight="Bold" Foreground="#00DAF3"/></Border></Grid><TextBlock Text="↓" Foreground="#BAC9CC"/><TextBlock Text="Fotos/2020/08/15/2020-08-15-14-32-08-124_EOS5D_a7f2c1d9.CR2" TextWrapping="Wrap" FontFamily="Consolas" FontSize="12" Foreground="#00E5FF" Background="#1E293B" Padding="8"/></StackPanel></Border>
+          <Border Background="#161D26" BorderBrush="#3B494C" BorderThickness="1" CornerRadius="8" Padding="12"><StackPanel Spacing="8"><Grid ColumnDefinitions="*,Auto"><TextBlock Text="DSC00124.ARW" FontFamily="Consolas" FontSize="11" Foreground="#BAC9CC"/><Border Grid.Column="1" Background="#3E495D" BorderBrush="#849396" BorderThickness="1" CornerRadius="4" Padding="6,2"><TextBlock Text="HASH PENDIENTE" FontSize="10" FontWeight="Bold" Foreground="#D8E3FB"/></Border></Grid><TextBlock Text="↓" Foreground="#BAC9CC"/><TextBlock Text="Fotos/2020/08/16/2020-08-16-10-04-02-???_A7RIII_[hash].ARW" TextWrapping="Wrap" FontFamily="Consolas" FontSize="12" Foreground="#00E5FF" Background="#1E293B" Padding="8"/></StackPanel></Border>
+          <Border Background="#161D26" BorderBrush="#93000A" BorderThickness="1" CornerRadius="8" Padding="12"><StackPanel Spacing="8"><Grid ColumnDefinitions="*,Auto"><TextBlock Text="P1010045.RW2" FontFamily="Consolas" FontSize="11" Foreground="#BAC9CC"/><Border Grid.Column="1" Background="#690005" BorderBrush="#93000A" BorderThickness="1" CornerRadius="4" Padding="6,2"><TextBlock Text="⚠ CONFLICTO" FontSize="10" FontWeight="Bold" Foreground="#FFB4AB"/></Border></Grid><TextBlock Text="La ruta de destino existe; se aplicaría la política seleccionada." Foreground="#FFB4AB" FontSize="12" TextWrapping="Wrap"/><TextBlock Text="…_GH5_b3e1_01.RW2" FontFamily="Consolas" FontSize="12" Foreground="#FFB4AB" Background="#1E293B" Padding="8"/></StackPanel></Border>
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+    <Border Grid.Row="1" Background="#161D26" BorderBrush="#3B494C" BorderThickness="0,1,0,0" Padding="18,12">
+      <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto" ColumnSpacing="26">
+        <StackPanel><TextBlock Text="SIN CONFLICTO" FontSize="10" FontWeight="Bold" Foreground="#BAC9CC"/><TextBlock Text="12.450" FontSize="18" Foreground="#00E5FF" FontFamily="Consolas"/></StackPanel>
+        <StackPanel Grid.Column="1"><TextBlock Text="REQUIERE REVISIÓN" FontSize="10" FontWeight="Bold" Foreground="#BAC9CC"/><TextBlock Text="34" FontSize="18" Foreground="#FFB4AB" FontFamily="Consolas"/></StackPanel>
+        <StackPanel Grid.Column="2"><TextBlock Text="YA ORGANIZADOS" FontSize="10" FontWeight="Bold" Foreground="#BAC9CC"/><TextBlock Text="45.102" FontSize="18" Foreground="#BAC9CC" FontFamily="Consolas"/></StackPanel>
+        <Button Grid.Column="4" Content="Generar plan de revisión · backend pendiente" IsEnabled="False" Background="#00E5FF" Foreground="#00363D"/>
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>
