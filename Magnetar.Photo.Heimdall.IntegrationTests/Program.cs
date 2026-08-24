@@ -1,8 +1,10 @@
 using Magnetar.Photo.Heimdall.BusinessLogic.Domains.LibraryManagement.Services;
 using Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Models;
 using Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Services;
+using Magnetar.Photo.Heimdall.DataAccess.Domains.DataAccessComposition.Services;
 using Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Services;
-using Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Services;
+using Magnetar.Photo.Heimdall.DataAccess.Net.Domains.RemoteTransport.Models;
+using Magnetar.Photo.Heimdall.DataAccess.Net.Domains.RemoteTransport.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Buffers.Binary;
 
@@ -17,8 +19,11 @@ try
     await File.WriteAllTextAsync(Path.Combine(nested.FullName, "ignored.txt"), "not media");
 
     var databasePath = Path.Combine(testRoot, "catalog.db");
-    var catalog = new SqliteLibraryCatalog(databasePath);
-    var service = new LibraryScanService(catalog, new PhysicalMediaFileScanner());
+    var catalogServices = new ServiceCollection()
+        .AddHeimdallDataAccess(databasePath)
+        .BuildServiceProvider();
+    var catalog = catalogServices.GetRequiredService<ILibraryCatalogDataAccessService>();
+    var service = new LibraryScanService(catalog);
     var library = await service.RegisterLibraryAsync("Integration library", testRoot);
     var firstScan = await service.ScanAsync(library);
     var firstAssets = await catalog.ListAssetsAsync(library.Id);
@@ -34,6 +39,26 @@ try
     Assert(secondScan.CataloguedAssetCount == 2, "A second scan must re-observe the real files.");
     Assert(secondAssets.Count == 2, "Upsert must not duplicate an existing asset location.");
     Assert(secondAssets.Single(asset => asset.RelativePath == "one.jpg").Length == 5, "A changed real file must update its SQLite catalog record.");
+
+    var diDatabasePath = Path.Combine(testRoot, "catalog-from-di.db");
+    var dataAccessServices = new ServiceCollection()
+        .AddHeimdallDataAccess(diDatabasePath)
+        .BuildServiceProvider();
+    var diCatalog = dataAccessServices.GetRequiredService<ILibraryCatalogDataAccessService>();
+    await diCatalog.InitializeAsync();
+    var diLibrary = await diCatalog.AddLibraryAsync("DI library", testRoot);
+    var diCount = await diCatalog.ScanLibraryAsync(diLibrary);
+    Assert(diCount == 2 && (await diCatalog.ListAssetsAsync(diLibrary.Id)).Count == 2,
+        "The DataAccess DI boundary must resolve real SQLite and physical-filesystem services.");
+    var remoteTransport = dataAccessServices.GetRequiredService<IRemoteAgentTransportDataAccessNetService>();
+    var registeredEndpoint = remoteTransport.RegisterEndpoint(new RemoteAgentEndpointDataAccessNetModel(
+        "studio-nas", new Uri("https://studio-nas.example.test/agent"), RemoteAgentTransportDataAccessNetKind.SshTunnel));
+    Assert(registeredEndpoint.AgentId == "studio-nas" && registeredEndpoint.TransportKind == RemoteAgentTransportDataAccessNetKind.SshTunnel,
+        "The DataAccess.Net DI boundary must register and validate a remote agent endpoint without opening a network connection.");
+    AssertThrows<ArgumentNullException>(
+        () => remoteTransport.RegisterEndpoint(new RemoteAgentEndpointDataAccessNetModel(
+            "invalid-agent", null!, RemoteAgentTransportDataAccessNetKind.SshTunnel)),
+        "The DataAccess.Net boundary must reject a null endpoint before URI dereferencing.");
 
     var metadataReader = new MetadataExtractorMediaMetadataReader();
     var metadataFreePath = Path.Combine(testRoot, "no-metadata.bin");
@@ -92,6 +117,21 @@ static void Assert(bool condition, string message)
     {
         throw new InvalidOperationException(message);
     }
+}
+
+static void AssertThrows<TException>(Action action, string message)
+    where TException : Exception
+{
+    try
+    {
+        action();
+    }
+    catch (TException)
+    {
+        return;
+    }
+
+    throw new InvalidOperationException(message);
 }
 
 static byte[] CreateMvhdV1(DateTimeOffset capturedAt)

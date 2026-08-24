@@ -2,6 +2,8 @@
 <Solution>
   <Project Path="Magnetar.Photo.Heimdall.BusinessLogic/Magnetar.Photo.Heimdall.BusinessLogic.csproj" />
   <Project Path="Magnetar.Photo.Heimdall.DataAccess.IO/Magnetar.Photo.Heimdall.DataAccess.IO.csproj" />
+  <Project Path="Magnetar.Photo.Heimdall.DataAccess.Net/Magnetar.Photo.Heimdall.DataAccess.Net.csproj" />
+  <Project Path="Magnetar.Photo.Heimdall.DataAccess.Database/Magnetar.Photo.Heimdall.DataAccess.Database.csproj" />
   <Project Path="Magnetar.Photo.Heimdall.DataAccess/Magnetar.Photo.Heimdall.DataAccess.csproj" />
   <Project Path="Magnetar.Photo.Heimdall.Desktop/Magnetar.Photo.Heimdall.Desktop.csproj" />
   <Project Path="Magnetar.Photo.Heimdall.Desktop.IntegrationTests/Magnetar.Photo.Heimdall.Desktop.IntegrationTests.csproj" />
