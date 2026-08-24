@@ -46,3 +46,9 @@ legacy implementation or its unsafe file mutations.
 
 Performance-critical components and the evidence required before moving one
 from .NET to Rust are indexed in [docs/performance/README.md](docs/performance/README.md).
+
+## Current delivery status
+
+For the granular, user-facing status of each capability—clearly separating
+working workflows, service-only capabilities, preview-only UI, and planned
+work—see [User feature progress](docs/user-feature-progress.md).
