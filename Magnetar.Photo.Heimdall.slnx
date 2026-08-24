@@ -5,6 +5,8 @@
   <Project Path="Magnetar.Photo.Heimdall.DataAccess/Magnetar.Photo.Heimdall.DataAccess.csproj" />
   <Project Path="Magnetar.Photo.Heimdall.Host/Magnetar.Photo.Heimdall.Host.csproj" />
   <Project Path="Magnetar.Photo.Heimdall.IntegrationTests/Magnetar.Photo.Heimdall.IntegrationTests.csproj" />
+  <Project Path="Magnetar.Photo.Heimdall.MediaAnalysis/Magnetar.Photo.Heimdall.MediaAnalysis.csproj" />
+  <Project Path="Magnetar.Photo.Heimdall.MediaAnalysis.IntegrationTests/Magnetar.Photo.Heimdall.MediaAnalysis.IntegrationTests.csproj" />
   <Project Path="Magnetar.Photo.Heimdall.PresentationLogic/Magnetar.Photo.Heimdall.PresentationLogic.csproj" />
   <Project Path="Magnetar.Photo.Heimdall.RemoteContracts/Magnetar.Photo.Heimdall.RemoteContracts.csproj" />
   <Project Path="Magnetar.Photo.Heimdall.RemoteContracts.IntegrationTests/Magnetar.Photo.Heimdall.RemoteContracts.IntegrationTests.csproj" />

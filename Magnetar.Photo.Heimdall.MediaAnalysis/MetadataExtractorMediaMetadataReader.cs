@@ -145,17 +145,6 @@ public sealed class MetadataExtractorMediaMetadataReader : IMediaMetadataReader
                 }
             }
 
-            // Fallback: IFD0 DateTime tag (0x0132).
-            foreach (var dir in directories.OfType<ExifIfd0Directory>())
-            {
-                if (dir.TryGetDateTime(ExifIfd0Directory.TagDateTime, out var dt))
-                {
-                    return new MetadataEvidence(
-                        filePath, DateSource.ExifDateTimeOriginal,
-                        new DateTimeOffset(dt, TimeSpan.Zero),
-                        ExifConfidence, null);
-                }
-            }
         }
         catch (Exception ex)
         {
