@@ -12,11 +12,33 @@ internal static class DesktopComposition
 {
     public static LibraryOnboardingFacade CreateOnboardingFacade()
     {
-        var databasePath = Path.Combine(AppContext.BaseDirectory, "heimdall-catalog.db");
+        var databasePath = GetCatalogDatabasePath();
         var dataAccess = new ServiceCollection()
             .AddHeimdallDataAccess(databasePath)
             .BuildServiceProvider();
         var catalog = dataAccess.GetRequiredService<ILibraryCatalogDataAccessService>();
         return new LibraryOnboardingFacade(new LibraryScanService(catalog));
+    }
+
+    internal static string GetCatalogDatabasePath()
+    {
+        var baseDirectory = OperatingSystem.IsLinux()
+            ? Environment.GetEnvironmentVariable("XDG_DATA_HOME")
+            : null;
+        baseDirectory = string.IsNullOrWhiteSpace(baseDirectory)
+            ? Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
+            : baseDirectory;
+        baseDirectory = string.IsNullOrWhiteSpace(baseDirectory)
+            ? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
+            : baseDirectory;
+
+        if (string.IsNullOrWhiteSpace(baseDirectory))
+        {
+            throw new InvalidOperationException("A writable per-user application-data directory is required for the Heimdall catalogue.");
+        }
+
+        var catalogueDirectory = Path.Combine(baseDirectory, "Magnetar", "PhotoHeimdall");
+        Directory.CreateDirectory(catalogueDirectory);
+        return Path.Combine(catalogueDirectory, "heimdall-catalog.db");
     }
 }

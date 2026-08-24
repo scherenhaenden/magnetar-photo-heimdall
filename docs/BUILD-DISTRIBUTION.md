@@ -25,6 +25,11 @@ Workflow artifacts are retained for 30 days. A timestamp tag produces the same
 four downloadable workflow artifacts; publishing a GitHub release remains an
 explicit, separately authorized operation.
 
+The installed desktop application stores its SQLite catalogue in the current
+user's application-data directory, never beside the executable. On Linux it
+uses `XDG_DATA_HOME` when set, otherwise the platform local-application-data
+directory; this keeps Debian installs under `/opt` writable for normal users.
+
 ## Deliberate unsigned status
 
 The workflow does **not** sign or notarize Windows or macOS binaries because no
