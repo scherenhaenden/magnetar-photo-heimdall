@@ -1,9 +1,12 @@
 <Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:Magnetar.Photo.Heimdall.Desktop.Controls">
   <Styles.Resources>
   <ResourceDictionary>
-  <!-- Apply to a ContentControl: Theme="{StaticResource HeimdallShell}". -->
-  <ControlTheme x:Key="HeimdallShell" TargetType="ContentControl">
+  <!-- This theme is deliberately scoped to HeimdallShell. Applying a shell
+       template to ContentControl is recursive because ContentPresenter uses
+       ContentControl internally while presenting the page content. -->
+  <ControlTheme x:Key="HeimdallShell" TargetType="controls:HeimdallShell">
     <Setter Property="Background" Value="{StaticResource HeimdallBackgroundBrush}" />
     <Setter Property="Template">
       <ControlTemplate>

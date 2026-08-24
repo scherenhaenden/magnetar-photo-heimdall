@@ -1,10 +1,11 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:Magnetar.Photo.Heimdall.Desktop.Controls"
         x:Class="Magnetar.Photo.Heimdall.Desktop.Views.MainWindow"
         Width="1180" Height="760" MinWidth="920" MinHeight="580"
         Title="Heimdall — Photo Libraries">
 
-  <ContentControl Theme="{StaticResource HeimdallShell}">
+  <controls:HeimdallShell Theme="{StaticResource HeimdallShell}">
   <ScrollViewer>
     <StackPanel Margin="32" Spacing="20">
 
@@ -98,5 +99,5 @@
 
     </StackPanel>
   </ScrollViewer>
-  </ContentControl>
+  </controls:HeimdallShell>
 </Window>
