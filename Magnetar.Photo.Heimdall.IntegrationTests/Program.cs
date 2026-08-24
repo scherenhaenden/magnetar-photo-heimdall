@@ -42,6 +42,7 @@ try
         .AddLibraryCatalogDataAccess(diDatabasePath)
         .BuildServiceProvider();
     var diCatalog = dataAccessServices.GetRequiredService<ILibraryCatalogDataAccessService>();
+    await diCatalog.InitializeAsync();
     var diLibrary = await diCatalog.AddLibraryAsync("DI library", testRoot);
     var diCount = await diCatalog.ScanLibraryAsync(diLibrary);
     Assert(diCount == 2 && (await diCatalog.ListAssetsAsync(diLibrary.Id)).Count == 2,
