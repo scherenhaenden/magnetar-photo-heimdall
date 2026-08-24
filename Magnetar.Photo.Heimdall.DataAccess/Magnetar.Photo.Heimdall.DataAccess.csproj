@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess.IO/Magnetar.Photo.Heimdall.DataAccess.IO.csproj" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.11" />
+    <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess.Database/Magnetar.Photo.Heimdall.DataAccess.Database.csproj" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.11" />
   </ItemGroup>
 </Project>

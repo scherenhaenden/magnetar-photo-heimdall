@@ -1,4 +1,5 @@
 using Magnetar.Photo.Heimdall.BusinessLogic.Domains.LibraryManagement.Services;
+using Magnetar.Photo.Heimdall.DataAccess.Database.Domains.LibraryCatalog.Services;
 using Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Services;
 using Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Services;
 using Magnetar.Photo.Heimdall.PresentationLogic.Domains.LibraryOnboarding.Services;
@@ -69,7 +70,7 @@ public sealed class LibraryOnboardingIntegrationTests : IDisposable
         await File.WriteAllBytesAsync(Path.Combine(_testRoot, "photo.jpg"),
             [0x01, 0x02, 0x03, 0x04, 0x05]);
 
-        var service = new LibraryScanService(catalog, new PhysicalMediaFileScanner());
+        var service = new LibraryScanService(catalog);
         var secondScan = await service.ScanAsync(firstResult.Library);
 
         // Assert: still exactly one record, with updated length.
@@ -94,12 +95,15 @@ public sealed class LibraryOnboardingIntegrationTests : IDisposable
     /// Returns both the catalog (for direct SQLite assertions) and the facade
     /// (the presentation-layer entry point).
     /// </summary>
-    private (SqliteLibraryCatalog catalog, LibraryOnboardingFacade facade) BuildStack()
+    private (ILibraryCatalogDataAccessService catalog, LibraryOnboardingFacade facade) BuildStack()
     {
         var dbPath = Path.Combine(_testRoot, "catalog.db");
-        var catalog = new SqliteLibraryCatalog(dbPath);
+        var databaseService = new SqliteLibraryCatalogDatabaseService(dbPath);
+        var catalog = new LibraryCatalogDataAccessService(
+            databaseService,
+            new PhysicalMediaFileScannerDataAccessIoService());
         var facade = new LibraryOnboardingFacade(
-            new LibraryScanService(catalog, new PhysicalMediaFileScanner()));
+            new LibraryScanService(catalog));
         return (catalog, facade);
     }
 }

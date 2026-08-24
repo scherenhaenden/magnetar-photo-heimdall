@@ -1,4 +1,5 @@
 using Magnetar.Photo.Heimdall.BusinessLogic.Domains.LibraryManagement.Services;
+using Magnetar.Photo.Heimdall.DataAccess.Database.Domains.LibraryCatalog.Services;
 using Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Services;
 using Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Services;
 using Magnetar.Photo.Heimdall.PresentationLogic.Domains.LibraryOnboarding.Services;
@@ -10,8 +11,9 @@ if (args.Length is not 2)
 }
 
 var databasePath = Path.Combine(AppContext.BaseDirectory, "heimdall-catalog.db");
-var catalog = new SqliteLibraryCatalog(databasePath);
-var scanService = new LibraryScanService(catalog, new PhysicalMediaFileScanner());
+var databaseService = new SqliteLibraryCatalogDatabaseService(databasePath);
+var catalog = new LibraryCatalogDataAccessService(databaseService, new PhysicalMediaFileScannerDataAccessIoService());
+var scanService = new LibraryScanService(catalog);
 var onboarding = new LibraryOnboardingFacade(scanService);
 var result = await onboarding.AddAndScanAsync(args[0], args[1]);
 

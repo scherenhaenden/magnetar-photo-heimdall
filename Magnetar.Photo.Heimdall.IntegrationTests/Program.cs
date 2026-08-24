@@ -1,6 +1,7 @@
 using Magnetar.Photo.Heimdall.BusinessLogic.Domains.LibraryManagement.Services;
 using Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Models;
 using Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Services;
+using Magnetar.Photo.Heimdall.DataAccess.Database.Domains.LibraryCatalog.Services;
 using Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Services;
 using Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,8 +18,9 @@ try
     await File.WriteAllTextAsync(Path.Combine(nested.FullName, "ignored.txt"), "not media");
 
     var databasePath = Path.Combine(testRoot, "catalog.db");
-    var catalog = new SqliteLibraryCatalog(databasePath);
-    var service = new LibraryScanService(catalog, new PhysicalMediaFileScanner());
+    var databaseService = new SqliteLibraryCatalogDatabaseService(databasePath);
+    var catalog = new LibraryCatalogDataAccessService(databaseService, new PhysicalMediaFileScannerDataAccessIoService());
+    var service = new LibraryScanService(catalog);
     var library = await service.RegisterLibraryAsync("Integration library", testRoot);
     var firstScan = await service.ScanAsync(library);
     var firstAssets = await catalog.ListAssetsAsync(library.Id);
@@ -34,6 +36,16 @@ try
     Assert(secondScan.CataloguedAssetCount == 2, "A second scan must re-observe the real files.");
     Assert(secondAssets.Count == 2, "Upsert must not duplicate an existing asset location.");
     Assert(secondAssets.Single(asset => asset.RelativePath == "one.jpg").Length == 5, "A changed real file must update its SQLite catalog record.");
+
+    var diDatabasePath = Path.Combine(testRoot, "catalog-from-di.db");
+    var dataAccessServices = new ServiceCollection()
+        .AddLibraryCatalogDataAccess(diDatabasePath)
+        .BuildServiceProvider();
+    var diCatalog = dataAccessServices.GetRequiredService<ILibraryCatalogDataAccessService>();
+    var diLibrary = await diCatalog.AddLibraryAsync("DI library", testRoot);
+    var diCount = await diCatalog.ScanLibraryAsync(diLibrary);
+    Assert(diCount == 2 && (await diCatalog.ListAssetsAsync(diLibrary.Id)).Count == 2,
+        "The DataAccess DI boundary must resolve real SQLite and physical-filesystem services.");
 
     var metadataReader = new MetadataExtractorMediaMetadataReader();
     var metadataFreePath = Path.Combine(testRoot, "no-metadata.bin");

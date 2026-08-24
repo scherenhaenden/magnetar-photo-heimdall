@@ -19,6 +19,7 @@
     <ProjectReference Include="../Magnetar.Photo.Heimdall.PresentationLogic/Magnetar.Photo.Heimdall.PresentationLogic.csproj" />
     <ProjectReference Include="../Magnetar.Photo.Heimdall.BusinessLogic/Magnetar.Photo.Heimdall.BusinessLogic.csproj" />
     <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess/Magnetar.Photo.Heimdall.DataAccess.csproj" />
+    <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess.Database/Magnetar.Photo.Heimdall.DataAccess.Database.csproj" />
     <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess.IO/Magnetar.Photo.Heimdall.DataAccess.IO.csproj" />
   </ItemGroup>
 </Project>

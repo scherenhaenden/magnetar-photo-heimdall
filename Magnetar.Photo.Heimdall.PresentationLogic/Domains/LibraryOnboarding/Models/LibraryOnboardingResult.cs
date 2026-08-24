@@ -3,4 +3,4 @@ using Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Models;
 
 namespace Magnetar.Photo.Heimdall.PresentationLogic.Domains.LibraryOnboarding.Models;
 
-public sealed record LibraryOnboardingResult(LibraryRoot Library, ScanResult Scan);
+public sealed record LibraryOnboardingResult(LibraryRootDataAccessModel Library, ScanResult Scan);
