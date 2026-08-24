@@ -3,5 +3,7 @@
              x:Class="Magnetar.Photo.Heimdall.Desktop.App">
   <Application.Styles>
     <FluentTheme />
+    <StyleInclude Source="avares://Magnetar.Photo.Heimdall.Desktop/Design/HeimdallFoundation.axaml" />
+    <StyleInclude Source="avares://Magnetar.Photo.Heimdall.Desktop/Design/HeimdallShell.axaml" />
   </Application.Styles>
 </Application>

@@ -1,5 +1,7 @@
-<ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Styles.Resources>
+  <ResourceDictionary>
   <!-- Stitch design tokens: Magnetar Photo Heimdall / Mission Control. -->
   <Color x:Key="HeimdallBackgroundColor">#051424</Color>
   <Color x:Key="HeimdallSurfaceLowestColor">#010F1F</Color>
@@ -61,6 +63,9 @@
       </DrawingGroup>
     </DrawingImage.Drawing>
   </DrawingImage>
+
+  </ResourceDictionary>
+  </Styles.Resources>
 
   <Style Selector="TextBlock.heimdall-headline-lg">
     <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter" />
@@ -151,4 +156,4 @@
     <Setter Property="Foreground" Value="{StaticResource HeimdallCyanBrush}" />
     <Setter Property="Background" Value="{StaticResource HeimdallSurfaceHighestBrush}" />
   </Style>
-</ResourceDictionary>
+</Styles>

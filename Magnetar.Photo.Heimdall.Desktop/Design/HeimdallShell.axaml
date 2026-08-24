@@ -1,5 +1,7 @@
-<ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Styles.Resources>
+  <ResourceDictionary>
   <!-- Apply to a ContentControl: Theme="{StaticResource HeimdallShell}". -->
   <ControlTheme x:Key="HeimdallShell" TargetType="ContentControl">
     <Setter Property="Background" Value="{StaticResource HeimdallBackgroundBrush}" />
@@ -89,6 +91,8 @@
       </ControlTemplate>
     </Setter>
   </ControlTheme>
+  </ResourceDictionary>
+  </Styles.Resources>
 
   <Style Selector="Border.heimdall-nav-item">
     <Setter Property="Background" Value="Transparent" />
@@ -99,4 +103,4 @@
   <Style Selector="Border.heimdall-nav-item:focus">
     <Setter Property="Background" Value="#80273647" />
   </Style>
-</ResourceDictionary>
+</Styles>
