@@ -2,6 +2,8 @@ using Magnetar.Photo.Heimdall.BusinessLogic;
 using Magnetar.Photo.Heimdall.DataAccess;
 using Magnetar.Photo.Heimdall.DataAccess.IO;
 using Magnetar.Photo.Heimdall.MediaAnalysis;
+using Microsoft.Extensions.DependencyInjection;
+using System.Buffers.Binary;
 
 var testRoot = Path.Combine(Path.GetTempPath(), $"heimdall-integration-{Guid.NewGuid():N}");
 Directory.CreateDirectory(testRoot);
@@ -42,7 +44,7 @@ try
     Assert(mtime.Value == expectedMtime, "The mtime fallback must retain the filesystem timestamp.");
 
     var xmpPath = Path.Combine(testRoot, "xmp.jpg");
-    await File.WriteAllTextAsync(xmpPath, "<x:xmpmeta xmp:CreateDate=\"2023-02-03T04:05:06Z\" />");
+    await File.WriteAllTextAsync(xmpPath, "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" xmlns:xmp=\"http://ns.adobe.com/xap/\"><xmp:CreateDate>2023-02-03T04:05:06Z</xmp:CreateDate></x:xmpmeta>");
     var xmp = await metadataReader.ReadCapturedAtAsync(xmpPath);
     Assert(xmp.Source == CapturedAtSource.Xmp && xmp.Value == new DateTimeOffset(2023, 02, 03, 04, 05, 06, TimeSpan.Zero), "XMP dates must precede file mtime and retain their provenance.");
 
@@ -56,7 +58,25 @@ try
     hashBytes[^1] ^= 0xff;
     await File.WriteAllBytesAsync(hashPath, hashBytes);
     var changedHash = await hasher.HashAsync(hashPath);
-    Assert(changedHash.Full != firstHash.Full && changedHash.Quick != firstHash.Quick, "Changing bytes in a real file must change both full and quick BLAKE3 hashes.");
+    Assert(changedHash.FullHash != firstHash.FullHash && changedHash.QuickFingerprint != firstHash.QuickFingerprint, "Changing bytes in a real file must change both full and quick BLAKE3 hashes.");
+    Assert(firstHash.QuickFingerprintVersion == Blake3MediaHasher.QuickFingerprintVersion, "Quick fingerprints must carry their explicit format version.");
+
+    var v1QuickTimePath = Path.Combine(testRoot, "late-v1.mov");
+    await using (var output = new FileStream(v1QuickTimePath, FileMode.CreateNew, FileAccess.Write, FileShare.None, 64 * 1024, FileOptions.Asynchronous))
+    {
+        await output.WriteAsync(new byte[(16 * 1024 * 1024) + 9]);
+        await output.WriteAsync(CreateMvhdV1(new DateTimeOffset(2022, 08, 09, 10, 11, 12, TimeSpan.Zero)));
+    }
+    var quickTime = await metadataReader.ReadCapturedAtAsync(v1QuickTimePath);
+    Assert(quickTime.Source == CapturedAtSource.QuickTime && quickTime.Value == new DateTimeOffset(2022, 08, 09, 10, 11, 12, TimeSpan.Zero), "QuickTime v1 mvhd after 16 MiB must resolve its creation date.");
+
+    var malformedExifPath = Path.Combine(testRoot, "malformed-exif.jpg");
+    await File.WriteAllBytesAsync(malformedExifPath, [.. "Exif\0\0II*\0\x08\0\0\0\xff\xff"u8]);
+    var malformed = await metadataReader.ReadCapturedAtAsync(malformedExifPath);
+    Assert(malformed.Source == CapturedAtSource.FileModifiedTime, "Malformed EXIF offsets must fall back without throwing.");
+
+    var services = new ServiceCollection().AddMediaAnalysis().BuildServiceProvider();
+    Assert(services.GetRequiredService<IMediaMetadataReader>() is MediaMetadataReader && services.GetRequiredService<IContentHasher>() is Blake3MediaHasher, "AddMediaAnalysis must register the concrete metadata and content hashing services.");
     Console.WriteLine("PASS: real filesystem + SQLite integration scan.");
     return 0;
 }
@@ -71,4 +91,15 @@ static void Assert(bool condition, string message)
     {
         throw new InvalidOperationException(message);
     }
+}
+
+static byte[] CreateMvhdV1(DateTimeOffset capturedAt)
+{
+    var bytes = new byte[32];
+    BinaryPrimitives.WriteUInt32BigEndian(bytes, (uint)bytes.Length);
+    "mvhd"u8.CopyTo(bytes.AsSpan(4));
+    bytes[8] = 1;
+    var seconds = checked((ulong)(capturedAt - DateTimeOffset.UnixEpoch).TotalSeconds + 2_082_844_800UL);
+    BinaryPrimitives.WriteUInt64BigEndian(bytes.AsSpan(12), seconds);
+    return bytes;
 }
