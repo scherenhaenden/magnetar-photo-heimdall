@@ -1,0 +1,127 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Magnetar.Photo.Heimdall.Desktop.Views.ExploreLibraryView"
+             MinWidth="920" MinHeight="580">
+  <!-- Presentation-only composition.  The catalogue binding is intentionally added later. -->
+  <UserControl.Styles>
+    <Style Selector="TextBlock.label">
+      <Setter Property="FontSize" Value="10" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="Foreground" Value="#91A5B0" />
+    </Style>
+    <Style Selector="TextBlock.mono">
+      <Setter Property="FontFamily" Value="Cascadia Mono,Consolas,monospace" />
+      <Setter Property="FontSize" Value="11" />
+    </Style>
+    <Style Selector="Border.tile">
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="BorderBrush" Value="#344554" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Height" Value="134" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid Background="#051424" RowDefinitions="Auto,*,Auto">
+    <Border Grid.Row="0" Background="#0D1C2D" BorderBrush="#263B4B" BorderThickness="0,0,0,1" Padding="24,18">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Spacing="4">
+          <TextBlock Text="Explorar biblioteca" FontSize="25" FontWeight="SemiBold" Foreground="#D4E4FA" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="Bibliotecas" Foreground="#91A5B0" />
+            <TextBlock Text="›" Foreground="#647986" />
+            <TextBlock Text="Archivo 2020" Foreground="#00DAF3" />
+            <Border Background="#173B47" CornerRadius="4" Padding="7,2">
+              <TextBlock Text="VISTA PREVIA · catálogo aún no conectado" FontSize="10" FontWeight="Bold" Foreground="#9CF0FF" />
+            </Border>
+          </StackPanel>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="10">
+          <TextBox Width="235" Watermark="Buscar BLAKE3, etiqueta, cámara…" />
+          <Button Content="Crear plan" IsEnabled="False" ToolTip.Tip="Disponible al conectar el catálogo y revisar una selección." />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <Grid Grid.Row="1" ColumnDefinitions="220,*,270">
+      <Border Background="#010F1F" BorderBrush="#263B4B" BorderThickness="0,0,1,0" Padding="16">
+        <ScrollViewer>
+          <StackPanel Spacing="22">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Classes="label" Text="FILTROS ACTIVOS" />
+              <TextBlock Grid.Column="1" Text="Limpiar" Foreground="#00DAF3" FontSize="12" />
+            </Grid>
+            <StackPanel Spacing="9">
+              <TextBlock Text="Formato" FontWeight="SemiBold" Foreground="#D4E4FA" />
+              <CheckBox IsChecked="True" Content="RAW (.CR3, .ARW)     4.2k" Foreground="#BAC9CC" />
+              <CheckBox IsChecked="True" Content="JPEG / HEIC          12.1k" Foreground="#BAC9CC" />
+              <CheckBox Content="Vídeo (MP4, MOV)       842" Foreground="#BAC9CC" />
+            </StackPanel>
+            <Border Height="1" Background="#263B4B" />
+            <StackPanel Spacing="10">
+              <TextBlock Text="Estado" FontWeight="SemiBold" Foreground="#D4E4FA" />
+              <WrapPanel ItemHeight="30" ItemWidth="92">
+                <Border Background="#273647" CornerRadius="4" Padding="8,5" Margin="0,0,6,6"><TextBlock Text="Duplicados" FontSize="11" Foreground="#D4E4FA" /></Border>
+                <Border BorderBrush="#3B494C" BorderThickness="1" CornerRadius="4" Padding="8,5" Margin="0,0,6,6"><TextBlock Text="Sincronizados" FontSize="11" Foreground="#BAC9CC" /></Border>
+                <Border BorderBrush="#3B494C" BorderThickness="1" CornerRadius="4" Padding="8,5"><TextBlock Text="Pendientes" FontSize="11" Foreground="#BAC9CC" /></Border>
+              </WrapPanel>
+            </StackPanel>
+            <Border Height="1" Background="#263B4B" />
+            <StackPanel Spacing="8">
+              <TextBlock Text="Fecha de captura" FontWeight="SemiBold" Foreground="#D4E4FA" />
+              <TextBlock Text="01 ene 2020 — 31 dic 2020" FontSize="12" Foreground="#BAC9CC" />
+              <TextBlock Text="La fuente de fecha se mostrará por activo." TextWrapping="Wrap" FontSize="11" Foreground="#647986" />
+            </StackPanel>
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+
+      <Grid Grid.Column="1" RowDefinitions="48,*">
+        <Border Background="#0A1A2A" BorderBrush="#263B4B" BorderThickness="0,0,0,1" Padding="14,0">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="12">
+              <TextBlock Text="1.204" Classes="mono" Foreground="#D4E4FA" />
+              <TextBlock Text="seleccionados" FontSize="12" Foreground="#91A5B0" />
+              <TextBlock Text="|" Foreground="#3B494C" />
+              <TextBlock Text="▣ Todo" FontSize="12" Foreground="#BAC9CC" />
+              <TextBlock Text="□ Nada" FontSize="12" Foreground="#BAC9CC" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="10">
+              <TextBlock Text="▦" Foreground="#91A5B0" />
+              <TextBlock Text="Fecha de captura" FontSize="12" Foreground="#BAC9CC" />
+            </StackPanel>
+          </Grid>
+        </Border>
+        <ScrollViewer Grid.Row="1" Padding="12">
+          <WrapPanel ItemWidth="178" ItemHeight="150">
+            <Border Classes="tile" Width="166" Margin="0,0,12,12" BorderBrush="#00DAF3" BorderThickness="2">
+              <Grid Background="#123847">
+                <Border Background="#164F63" Height="76" VerticalAlignment="Top"><TextBlock Text="◒" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="38" Foreground="#9CF0FF" /></Border>
+                <Border Background="#07121E" CornerRadius="3" Padding="6,2" Margin="8" VerticalAlignment="Top" HorizontalAlignment="Left"><TextBlock Text="RAW" Classes="label" Foreground="White" /></Border>
+                <StackPanel VerticalAlignment="Bottom" Margin="8" Spacing="3"><TextBlock Text="DSC_9482.CR3" Classes="mono" Foreground="White" /><TextBlock Text="⧉ Duplicado detectado" FontSize="10" Foreground="#FFB4AB" /></StackPanel>
+              </Grid>
+            </Border>
+            <Border Classes="tile" Width="166" Margin="0,0,12,12"><Grid Background="#263B4B"><Border Background="#2C5261" Height="76" VerticalAlignment="Top"><TextBlock Text="⌁" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="38" Foreground="#D4E4FA" /></Border><Border Background="#07121E" CornerRadius="3" Padding="6,2" Margin="8" VerticalAlignment="Top" HorizontalAlignment="Left"><TextBlock Text="JPG" Classes="label" Foreground="White" /></Border><TextBlock Text="DSC_9483.JPG" Classes="mono" Foreground="White" VerticalAlignment="Bottom" Margin="8" /></Grid></Border>
+            <Border Classes="tile" Width="166" Margin="0,0,12,12"><Grid Background="#1B3444"><Border Background="#3B5968" Height="76" VerticalAlignment="Top"><TextBlock Text="❋" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="38" Foreground="#C3F5FF" /></Border><Border Background="#07121E" CornerRadius="3" Padding="6,2" Margin="8" VerticalAlignment="Top" HorizontalAlignment="Left"><TextBlock Text="RAW+JPG" Classes="label" Foreground="White" /></Border><TextBlock Text="DSC_9484.CR3" Classes="mono" Foreground="White" VerticalAlignment="Bottom" Margin="8" /></Grid></Border>
+            <Border Classes="tile" Width="166" Margin="0,0,12,12"><Grid Background="#182735"><Border Background="#554F68" Height="76" VerticalAlignment="Top"><TextBlock Text="◈" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="38" Foreground="#E8ECFF" /></Border><Border Background="#07121E" CornerRadius="3" Padding="6,2" Margin="8" VerticalAlignment="Top" HorizontalAlignment="Left"><TextBlock Text="HEIC" Classes="label" Foreground="White" /></Border><TextBlock Text="IMG_1201.HEIC" Classes="mono" Foreground="White" VerticalAlignment="Bottom" Margin="8" /></Grid></Border>
+            <Border Classes="tile" Width="166" Margin="0,0,12,12"><Grid Background="#263B4B"><Border Background="#2E6171" Height="76" VerticalAlignment="Top"><TextBlock Text="▻" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="38" Foreground="#C3F5FF" /></Border><Border Background="#07121E" CornerRadius="3" Padding="6,2" Margin="8" VerticalAlignment="Top" HorizontalAlignment="Left"><TextBlock Text="MOV" Classes="label" Foreground="White" /></Border><TextBlock Text="DJI_0210.MOV" Classes="mono" Foreground="White" VerticalAlignment="Bottom" Margin="8" /></Grid></Border>
+            <Border Classes="tile" Width="166" Margin="0,0,12,12"><Grid Background="#183345"><Border Background="#27556A" Height="76" VerticalAlignment="Top"><TextBlock Text="◒" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="38" Foreground="#9CF0FF" /></Border><Border Background="#07121E" CornerRadius="3" Padding="6,2" Margin="8" VerticalAlignment="Top" HorizontalAlignment="Left"><TextBlock Text="RAW" Classes="label" Foreground="White" /></Border><TextBlock Text="DSC_9485.ARW" Classes="mono" Foreground="White" VerticalAlignment="Bottom" Margin="8" /></Grid></Border>
+          </WrapPanel>
+        </ScrollViewer>
+      </Grid>
+
+      <Border Grid.Column="2" Background="#010F1F" BorderBrush="#263B4B" BorderThickness="1,0,0,0" Padding="16">
+        <ScrollViewer>
+          <StackPanel Spacing="18">
+            <Border Height="140" Background="#123847" CornerRadius="6"><TextBlock Text="◒" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="62" Foreground="#9CF0FF" /></Border>
+            <StackPanel Spacing="5"><TextBlock Text="DSC_9482.CR3" FontSize="17" FontWeight="SemiBold" Foreground="#D4E4FA" /><TextBlock Classes="mono" Text="/Volumes/NAS_Alpha/Archive2020/Iceland/DSC_9482.CR3" TextWrapping="Wrap" Foreground="#91A5B0" /></StackPanel>
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="14"><StackPanel><TextBlock Classes="label" Text="CÁMARA" /><TextBlock Text="Nikon Z9" Foreground="#D4E4FA" /></StackPanel><StackPanel Grid.Column="1"><TextBlock Classes="label" Text="LENTE" /><TextBlock Text="24–70mm f/2.8 S" Foreground="#D4E4FA" /></StackPanel><StackPanel Grid.Row="1"><TextBlock Classes="label" Text="CAPTURA" /><TextBlock Text="2020-10-14 09:42" Classes="mono" Foreground="#D4E4FA" /></StackPanel><StackPanel Grid.Row="1" Grid.Column="1"><TextBlock Classes="label" Text="TAMAÑO" /><TextBlock Text="45.2 MB" Classes="mono" Foreground="#D4E4FA" /></StackPanel></Grid>
+            <Border Height="1" Background="#263B4B" />
+            <StackPanel Spacing="6"><TextBlock Classes="label" Text="INTEGRIDAD · BLAKE3" /><Border Background="#122131" BorderBrush="#263B4B" BorderThickness="1" CornerRadius="4" Padding="8"><TextBlock Classes="mono" Text="af1349b9…b93220" Foreground="#C3F5FF" /></Border><TextBlock Text="● Verificado (estado de presentación)" FontSize="11" Foreground="#78D2B3" /></StackPanel>
+            <TextBlock Text="Las acciones de archivo se habilitarán cuando exista un plan aprobado." TextWrapping="Wrap" FontSize="11" Foreground="#647986" />
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+    </Grid>
+    <Border Grid.Row="2" Background="#0D1C2D" BorderBrush="#263B4B" BorderThickness="0,1,0,0" Padding="24,8"><TextBlock Text="Vista de presentación: las miniaturas, filtros y datos no modifican ni consultan archivos todavía." FontSize="11" Foreground="#91A5B0" /></Border>
+  </Grid>
+</UserControl>
