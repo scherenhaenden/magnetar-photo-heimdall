@@ -9,9 +9,9 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- 11.3.20 is the latest stable 11.x release (net10.0 compatible). -->
-    <PackageReference Include="Avalonia.Desktop" Version="11.3.20" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.20" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.20" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.1" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.1" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.1" />
     <!-- Override the transitive Tmds.DBus.Protocol pulled in by Avalonia.
          Versions <= 0.20.0 have a known high-severity vulnerability (GHSA-xrw6-gwf8-vvr9).
          NuGet resolves to the highest explicitly requested version, so pinning
