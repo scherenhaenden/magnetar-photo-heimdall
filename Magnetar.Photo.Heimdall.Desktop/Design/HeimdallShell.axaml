@@ -1,0 +1,102 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- Apply to a ContentControl: Theme="{StaticResource HeimdallShell}". -->
+  <ControlTheme x:Key="HeimdallShell" TargetType="ContentControl">
+    <Setter Property="Background" Value="{StaticResource HeimdallBackgroundBrush}" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Background="{TemplateBinding Background}" ColumnDefinitions="260,*" RowDefinitions="64,*">
+          <Border Grid.RowSpan="2" Background="{StaticResource HeimdallSurfaceLowBrush}"
+                  BorderBrush="#1A849396" BorderThickness="0,0,1,0">
+            <Grid RowDefinitions="Auto,*,Auto" Margin="16,24,16,16">
+              <StackPanel Spacing="3">
+                <Grid ColumnDefinitions="40,*" ColumnSpacing="12">
+                  <Border Width="40" Height="40" Padding="5" CornerRadius="8" Background="#1900E5FF" BorderBrush="#3300E5FF" BorderThickness="1">
+                    <Image Source="{StaticResource HeimdallNordicEyeLogo}" Stretch="Uniform" />
+                  </Border>
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1">
+                    <TextBlock Classes="heimdall-headline-sm" Text="Heimdall" />
+                    <TextBlock Classes="heimdall-label" Opacity="0.72" Text="LOCAL-FIRST PHOTO MGMT" />
+                  </StackPanel>
+                </Grid>
+              </StackPanel>
+
+              <StackPanel Grid.Row="1" Margin="-16,34,0,0" Spacing="2">
+                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
+                  <TextBlock Classes="heimdall-label" Text="▦    RESUMEN" />
+                </Border>
+                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
+                  <TextBlock Classes="heimdall-label" Text="▤    BIBLIOTECAS" />
+                </Border>
+                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
+                  <TextBlock Classes="heimdall-label" Text="◫    EXPLORAR" />
+                </Border>
+                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
+                  <TextBlock Classes="heimdall-label" Text="▣    DUPLICADOS" />
+                </Border>
+                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
+                  <TextBlock Classes="heimdall-label" Text="◇    ORGANIZAR" />
+                </Border>
+                <Border Height="1" Margin="16,10" Background="#1A849396" />
+                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
+                  <TextBlock Classes="heimdall-label" Text="↗    EXPORTAR" />
+                </Border>
+                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
+                  <TextBlock Classes="heimdall-label" Text="▣    COPIAS DE SEGURIDAD" />
+                </Border>
+                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
+                  <TextBlock Classes="heimdall-label" Text="◴    ACTIVIDAD" />
+                </Border>
+                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
+                  <TextBlock Classes="heimdall-label" Text="≋    RENDIMIENTO" />
+                </Border>
+                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
+                  <TextBlock Classes="heimdall-label" Text="⚙    AJUSTES" />
+                </Border>
+              </StackPanel>
+
+              <StackPanel Grid.Row="2" Spacing="8">
+                <Border Height="1" Background="#1A849396" />
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="7">
+                  <Ellipse Width="6" Height="6" Fill="{StaticResource HeimdallSuccessBrush}" VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="1" Classes="heimdall-data" FontSize="10" Text="NAS Studio · conectado" />
+                </Grid>
+                <TextBlock Classes="heimdall-data" FontSize="10" Text="2 operaciones activas · Equilibrado" />
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <Border Grid.Column="1" Background="#CC051424" BorderBrush="#1A849396" BorderThickness="0,0,0,1">
+            <Grid Margin="16,0" ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <TextBlock Classes="heimdall-data" Text="Heimdall" />
+                <TextBlock Classes="heimdall-data" Text="›" />
+                <TextBlock Classes="heimdall-body" Foreground="{StaticResource HeimdallCyanSoftBrush}" Text="Bibliotecas" />
+              </StackPanel>
+              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                <Border Width="220" Height="32" Padding="10,0" CornerRadius="8" Background="#0F172A" BorderBrush="#4D3B494C" BorderThickness="1">
+                  <TextBlock Classes="heimdall-data" VerticalAlignment="Center" Text="⌕  Buscar recursos…" />
+                </Border>
+                <Button Classes="heimdall-secondary" Content="+ Añadir biblioteca" />
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <ScrollViewer Grid.Row="1" Grid.Column="1" HorizontalScrollBarVisibility="Disabled">
+            <ContentPresenter Margin="24" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" />
+          </ScrollViewer>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <Style Selector="Border.heimdall-nav-item">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="Border.heimdall-nav-item:pointerover">
+    <Setter Property="Background" Value="{StaticResource HeimdallSurfaceHighBrush}" />
+  </Style>
+  <Style Selector="Border.heimdall-nav-item:focus">
+    <Setter Property="Background" Value="#80273647" />
+  </Style>
+</ResourceDictionary>
