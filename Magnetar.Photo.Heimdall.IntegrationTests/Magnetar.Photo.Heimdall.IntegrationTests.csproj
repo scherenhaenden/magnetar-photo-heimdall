@@ -9,5 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="../Magnetar.Photo.Heimdall.BusinessLogic/Magnetar.Photo.Heimdall.BusinessLogic.csproj" />
+    <ProjectReference Include="../Magnetar.Photo.Heimdall.MediaAnalysis/Magnetar.Photo.Heimdall.MediaAnalysis.csproj" />
   </ItemGroup>
 </Project>
