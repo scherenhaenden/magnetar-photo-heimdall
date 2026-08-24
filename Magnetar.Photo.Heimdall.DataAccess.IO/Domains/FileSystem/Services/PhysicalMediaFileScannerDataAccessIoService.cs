@@ -3,19 +3,19 @@ using Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Mappers;
 
 namespace Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Services;
 
-public interface IMediaFileScanner
+public interface IMediaFileScannerDataAccessIoService
 {
-    IAsyncEnumerable<DiscoveredMediaFile> ScanAsync(string rootPath, CancellationToken cancellationToken = default);
+    IAsyncEnumerable<DiscoveredMediaFileDataAccessIoModel> ScanAsync(string rootPath, CancellationToken cancellationToken = default);
 }
 
-public sealed class PhysicalMediaFileScanner : IMediaFileScanner
+public sealed class PhysicalMediaFileScannerDataAccessIoService : IMediaFileScannerDataAccessIoService
 {
     private static readonly HashSet<string> SupportedExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
         ".jpg", ".jpeg", ".png", ".heic", ".tif", ".tiff", ".dng", ".nef", ".cr2", ".arw", ".raf", ".mp4", ".mov"
     };
 
-    public async IAsyncEnumerable<DiscoveredMediaFile> ScanAsync(string rootPath, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<DiscoveredMediaFileDataAccessIoModel> ScanAsync(string rootPath, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(rootPath);
         var root = Path.GetFullPath(rootPath);
@@ -29,7 +29,7 @@ public sealed class PhysicalMediaFileScanner : IMediaFileScanner
             }
 
             var info = new FileInfo(path);
-            yield return DiscoveredMediaFileMapper.FromFileInfo(root, info);
+            yield return DiscoveredMediaFileDataAccessIoMapper.FromFileInfo(root, info);
             await Task.Yield();
         }
     }

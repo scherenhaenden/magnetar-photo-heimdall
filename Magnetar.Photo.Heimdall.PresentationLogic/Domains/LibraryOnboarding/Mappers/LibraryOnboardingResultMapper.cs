@@ -6,5 +6,5 @@ namespace Magnetar.Photo.Heimdall.PresentationLogic.Domains.LibraryOnboarding.Ma
 
 internal static class LibraryOnboardingResultMapper
 {
-    public static LibraryOnboardingResult From(LibraryRoot library, ScanResult scan) => new(library, scan);
+    public static LibraryOnboardingResult From(LibraryRootDataAccessModel library, ScanResult scan) => new(library, scan);
 }
