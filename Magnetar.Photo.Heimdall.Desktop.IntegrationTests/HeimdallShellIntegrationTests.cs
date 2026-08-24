@@ -1,3 +1,4 @@
+using Avalonia.Platform;
 using Magnetar.Photo.Heimdall.Desktop.Controls;
 using Xunit;
 
@@ -13,8 +14,10 @@ public sealed class HeimdallShellIntegrationTests
     [Fact]
     public void Production_shell_resource_targets_only_the_dedicated_shell_control()
     {
-        var resourcePath = Path.Combine(AppContext.BaseDirectory, "Design", "HeimdallShell.axaml");
-        var xaml = File.ReadAllText(resourcePath);
+        var resourceUri = new Uri("avares://Magnetar.Photo.Heimdall.Desktop/Design/HeimdallShell.axaml");
+        using var resource = AssetLoader.Open(resourceUri);
+        using var reader = new StreamReader(resource);
+        var xaml = reader.ReadToEnd();
 
         Assert.Contains("TargetType=\"controls:HeimdallShell\"", xaml, StringComparison.Ordinal);
         Assert.DoesNotContain("TargetType=\"ContentControl\"", xaml, StringComparison.Ordinal);

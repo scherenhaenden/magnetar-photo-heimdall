@@ -22,9 +22,4 @@
     <ProjectReference Include="../Magnetar.Photo.Heimdall.BusinessLogic/Magnetar.Photo.Heimdall.BusinessLogic.csproj" />
     <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess/Magnetar.Photo.Heimdall.DataAccess.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="../Magnetar.Photo.Heimdall.Desktop/Design/HeimdallShell.axaml"
-          Link="Design/HeimdallShell.axaml"
-          CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
 </Project>
