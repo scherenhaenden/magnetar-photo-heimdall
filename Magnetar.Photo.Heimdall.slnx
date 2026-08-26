@@ -1,16 +1,36 @@
 <!-- Version: 2026.08.24.17.38.00 -->
 <Solution>
-  <Project Path="Magnetar.Photo.Heimdall.BusinessLogic/Magnetar.Photo.Heimdall.BusinessLogic.csproj" />
-  <Project Path="Magnetar.Photo.Heimdall.DataAccess.IO/Magnetar.Photo.Heimdall.DataAccess.IO.csproj" />
-  <Project Path="Magnetar.Photo.Heimdall.DataAccess.Net/Magnetar.Photo.Heimdall.DataAccess.Net.csproj" />
-  <Project Path="Magnetar.Photo.Heimdall.DataAccess.Database/Magnetar.Photo.Heimdall.DataAccess.Database.csproj" />
-  <Project Path="Magnetar.Photo.Heimdall.DataAccess/Magnetar.Photo.Heimdall.DataAccess.csproj" />
-  <Project Path="Magnetar.Photo.Heimdall.Desktop/Magnetar.Photo.Heimdall.Desktop.csproj" />
-  <Project Path="Magnetar.Photo.Heimdall.Desktop.IntegrationTests/Magnetar.Photo.Heimdall.Desktop.IntegrationTests.csproj" />
-  <Project Path="Magnetar.Photo.Heimdall.Host/Magnetar.Photo.Heimdall.Host.csproj" />
-  <Project Path="Magnetar.Photo.Heimdall.IntegrationTests/Magnetar.Photo.Heimdall.IntegrationTests.csproj" />
-  <Project Path="Magnetar.Photo.Heimdall.MediaAnalysis.IntegrationTests/Magnetar.Photo.Heimdall.MediaAnalysis.IntegrationTests.csproj" />
-  <Project Path="Magnetar.Photo.Heimdall.PresentationLogic/Magnetar.Photo.Heimdall.PresentationLogic.csproj" />
-  <Project Path="Magnetar.Photo.Heimdall.RemoteContracts/Magnetar.Photo.Heimdall.RemoteContracts.csproj" />
-  <Project Path="Magnetar.Photo.Heimdall.RemoteContracts.IntegrationTests/Magnetar.Photo.Heimdall.RemoteContracts.IntegrationTests.csproj" />
+  <Folder Name="/01_EntryPoints/01_Desktop/">
+    <Project Path="Magnetar.Photo.Heimdall.Desktop/Magnetar.Photo.Heimdall.Desktop.csproj" />
+  </Folder>
+  <Folder Name="/01_EntryPoints/02_Host/">
+    <Project Path="Magnetar.Photo.Heimdall.Host/Magnetar.Photo.Heimdall.Host.csproj" />
+  </Folder>
+  <Folder Name="/02_PresentationLogic/">
+    <Project Path="Magnetar.Photo.Heimdall.PresentationLogic/Magnetar.Photo.Heimdall.PresentationLogic.csproj" />
+  </Folder>
+  <Folder Name="/03_BusinessLogic/">
+    <Project Path="Magnetar.Photo.Heimdall.BusinessLogic/Magnetar.Photo.Heimdall.BusinessLogic.csproj" />
+  </Folder>
+  <Folder Name="/04_DataAccess/">
+    <Project Path="Magnetar.Photo.Heimdall.DataAccess/Magnetar.Photo.Heimdall.DataAccess.csproj" />
+  </Folder>
+  <Folder Name="/05_DataAccessAdapters/01_Database/">
+    <Project Path="Magnetar.Photo.Heimdall.DataAccess.Database/Magnetar.Photo.Heimdall.DataAccess.Database.csproj" />
+  </Folder>
+  <Folder Name="/05_DataAccessAdapters/02_IO/">
+    <Project Path="Magnetar.Photo.Heimdall.DataAccess.IO/Magnetar.Photo.Heimdall.DataAccess.IO.csproj" />
+  </Folder>
+  <Folder Name="/05_DataAccessAdapters/03_Net/">
+    <Project Path="Magnetar.Photo.Heimdall.DataAccess.Net/Magnetar.Photo.Heimdall.DataAccess.Net.csproj" />
+  </Folder>
+  <Folder Name="/80_SharedContracts/">
+    <Project Path="Magnetar.Photo.Heimdall.RemoteContracts/Magnetar.Photo.Heimdall.RemoteContracts.csproj" />
+  </Folder>
+  <Folder Name="/90_IntegrationTests/">
+    <Project Path="Magnetar.Photo.Heimdall.Desktop.IntegrationTests/Magnetar.Photo.Heimdall.Desktop.IntegrationTests.csproj" />
+    <Project Path="Magnetar.Photo.Heimdall.IntegrationTests/Magnetar.Photo.Heimdall.IntegrationTests.csproj" />
+    <Project Path="Magnetar.Photo.Heimdall.MediaAnalysis.IntegrationTests/Magnetar.Photo.Heimdall.MediaAnalysis.IntegrationTests.csproj" />
+    <Project Path="Magnetar.Photo.Heimdall.RemoteContracts.IntegrationTests/Magnetar.Photo.Heimdall.RemoteContracts.IntegrationTests.csproj" />
+  </Folder>
 </Solution>
