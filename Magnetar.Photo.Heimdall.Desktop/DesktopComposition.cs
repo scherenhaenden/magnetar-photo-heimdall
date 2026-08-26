@@ -10,14 +10,14 @@ namespace Magnetar.Photo.Heimdall.Desktop;
 // about persistence and physical scanning. Views and view models use PresentationLogic only.
 internal static class DesktopComposition
 {
-    public static LibraryOnboardingFacade CreateOnboardingFacade()
+    public static LibraryOnboardingPresentationLogicService CreateOnboardingFacade()
     {
         var databasePath = GetCatalogDatabasePath();
         var dataAccess = new ServiceCollection()
             .AddHeimdallDataAccess(databasePath)
             .BuildServiceProvider();
         var catalog = dataAccess.GetRequiredService<ILibraryCatalogDataAccessService>();
-        return new LibraryOnboardingFacade(new LibraryScanService(catalog));
+        return new LibraryOnboardingPresentationLogicService(new LibraryScanBusinessLogicService(catalog));
     }
 
     internal static string GetCatalogDatabasePath()

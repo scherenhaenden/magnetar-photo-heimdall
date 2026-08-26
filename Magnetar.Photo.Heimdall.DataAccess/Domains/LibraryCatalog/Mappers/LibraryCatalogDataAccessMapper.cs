@@ -5,9 +5,9 @@ namespace Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Mappers;
 
 internal static class LibraryCatalogDataAccessMapper
 {
-    public static LibraryRootDataAccessModel ToDataAccessModel(LibraryRootDatabaseModel model) =>
+    public static LibraryRootDataAccessModel ToDataAccessModel(LibraryRootDataAccessDatabaseModel model) =>
         new(model.Id, model.DisplayName, model.CanonicalPath, model.CreatedAt);
 
-    public static CataloguedAssetDataAccessModel ToDataAccessModel(CataloguedAssetDatabaseModel model) =>
+    public static CataloguedAssetDataAccessModel ToDataAccessModel(CataloguedAssetDataAccessDatabaseModel model) =>
         new(model.Id, model.LibraryId, model.RelativePath, model.Length, model.LastWriteUtc);
 }

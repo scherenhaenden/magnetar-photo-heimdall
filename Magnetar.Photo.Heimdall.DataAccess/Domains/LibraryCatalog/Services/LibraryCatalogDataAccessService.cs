@@ -6,7 +6,7 @@ using Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Services;
 namespace Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Services;
 
 public sealed class LibraryCatalogDataAccessService(
-    ILibraryCatalogDatabaseService databaseService,
+    ILibraryCatalogDataAccessDatabaseService databaseService,
     IMediaFileScannerDataAccessIoService mediaFileScanner) : ILibraryCatalogDataAccessService
 {
     public Task InitializeAsync(CancellationToken cancellationToken = default) => databaseService.InitializeAsync(cancellationToken);

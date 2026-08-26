@@ -12,7 +12,7 @@ namespace Magnetar.Photo.Heimdall.Desktop.ViewModels;
 /// </summary>
 public sealed class LibraryScreenViewModel : INotifyPropertyChanged
 {
-    private readonly LibraryOnboardingFacade _facade;
+    private readonly LibraryOnboardingPresentationLogicService _facade;
     private string _displayName = "My photo library";
     private string _rootPath = string.Empty;
     private string _statusMessage = "Add a library folder to start cataloguing your photos.";
@@ -29,7 +29,7 @@ public sealed class LibraryScreenViewModel : INotifyPropertyChanged
     ///   Pass <see langword="null"/> (default) to disable the folder-picker button.
     /// </param>
     public LibraryScreenViewModel(
-        LibraryOnboardingFacade facade,
+        LibraryOnboardingPresentationLogicService facade,
         Func<Task<string?>>? folderPicker = null)
     {
         _facade = facade;

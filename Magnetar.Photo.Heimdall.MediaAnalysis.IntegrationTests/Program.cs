@@ -8,8 +8,8 @@ Console.WriteLine("=== Starting MediaAnalysis Integration Tests ===");
 var tempDir = Path.Combine(Path.GetTempPath(), $"heimdall-media-tests-{Guid.NewGuid():N}");
 Directory.CreateDirectory(tempDir);
 
-var reader = new MetadataExtractorMediaMetadataReader();
-var hasher = new Blake3ContentHasher();
+var reader = new MetadataExtractorMediaMetadataReaderBusinessLogicService();
+var hasher = new Blake3ContentHasherBusinessLogicService();
 
 try
 {
@@ -19,12 +19,12 @@ try
     CreateJpegWithExif(jpegPath, "2026:08:24 14:30:00");
 
     var dateResult = await reader.ReadCaptureDateAsync(jpegPath);
-    Assert(dateResult.Source == DateSource.ExifDateTimeOriginal, $"Expected ExifDateTimeOriginal but got {dateResult.Source}");
+    Assert(dateResult.Source == DateSourceBusinessLogicModel.ExifDateTimeOriginal, $"Expected ExifDateTimeOriginal but got {dateResult.Source}");
     Assert(Math.Abs(dateResult.Confidence - 1.0) < 0.001, $"Expected confidence 1.0 but got {dateResult.Confidence}");
     Assert(dateResult.Value.Year == 2026 && dateResult.Value.Month == 8 && dateResult.Value.Day == 24, "Date parsed mismatch");
     Assert(dateResult.Value.Hour == 14 && dateResult.Value.Minute == 30 && dateResult.Value.Second == 0, "Time parsed mismatch");
     Assert(dateResult.AllEvidence.Count >= 1, "AllEvidence should have entries");
-    Assert(dateResult.AllEvidence[0].Source == DateSource.ExifDateTimeOriginal, "First evidence should be EXIF");
+    Assert(dateResult.AllEvidence[0].Source == DateSourceBusinessLogicModel.ExifDateTimeOriginal, "First evidence should be EXIF");
     Console.WriteLine("  ✓ PASS: JPEG real EXIF DateTimeOriginal extracted successfully.");
 
     // Test 2: File without EXIF metadata (fallback to filesystem mtime)
@@ -34,7 +34,7 @@ try
     var expectedMtime = new DateTimeOffset(File.GetLastWriteTimeUtc(plainPath), TimeSpan.Zero);
 
     var fallbackResult = await reader.ReadCaptureDateAsync(plainPath);
-    Assert(fallbackResult.Source == DateSource.FilesystemMtime, $"Expected FilesystemMtime but got {fallbackResult.Source}");
+    Assert(fallbackResult.Source == DateSourceBusinessLogicModel.FilesystemMtime, $"Expected FilesystemMtime but got {fallbackResult.Source}");
     Assert(Math.Abs(fallbackResult.Confidence - 0.10) < 0.001, $"Expected confidence 0.10 but got {fallbackResult.Confidence}");
     Assert(Math.Abs((fallbackResult.Value - expectedMtime).TotalSeconds) < 2, "Fallback date should match mtime");
     Console.WriteLine("  ✓ PASS: Fallback to filesystem mtime verified.");
@@ -94,8 +94,8 @@ try
         0xFF, 0xD9,
     ]);
     var corruptExif = await reader.ReadCaptureDateAsync(corruptExifPath);
-    Assert(corruptExif.Source == DateSource.FilesystemMtime, "Corrupt EXIF must fall back to filesystem mtime");
-    Assert(corruptExif.AllEvidence[0].Source == DateSource.ExifDateTimeOriginal, "EXIF evidence must be retained for corrupt metadata");
+    Assert(corruptExif.Source == DateSourceBusinessLogicModel.FilesystemMtime, "Corrupt EXIF must fall back to filesystem mtime");
+    Assert(corruptExif.AllEvidence[0].Source == DateSourceBusinessLogicModel.ExifDateTimeOriginal, "EXIF evidence must be retained for corrupt metadata");
     Console.WriteLine("  ✓ PASS: Corrupt EXIF is contained and falls back safely.");
 
     // Test 7: XML XMP is parsed structurally, without date-looking text matching.
@@ -109,7 +109,7 @@ try
         </x:xmpmeta>
         """);
     var xmp = await reader.ReadCaptureDateAsync(xmpPath);
-    Assert(xmp.Source == DateSource.Xmp, "XML XMP CreateDate must win after absent EXIF");
+    Assert(xmp.Source == DateSourceBusinessLogicModel.Xmp, "XML XMP CreateDate must win after absent EXIF");
     Assert(xmp.Value == new DateTimeOffset(2023, 4, 5, 4, 7, 8, TimeSpan.Zero), "XMP timezone conversion mismatch");
     Console.WriteLine("  ✓ PASS: XML XMP CreateDate extracted successfully.");
 
@@ -118,7 +118,7 @@ try
     var quickTimePath = Path.Combine(tempDir, "late-v1.mov");
     await CreateLateQuickTimeV1Async(quickTimePath, new DateTimeOffset(2022, 2, 3, 4, 5, 6, TimeSpan.Zero));
     var quickTime = await reader.ReadCaptureDateAsync(quickTimePath);
-    Assert(quickTime.Source == DateSource.QuickTime, "Late mvhd v1 must be resolved as QuickTime");
+    Assert(quickTime.Source == DateSourceBusinessLogicModel.QuickTime, "Late mvhd v1 must be resolved as QuickTime");
     Assert(quickTime.Value == new DateTimeOffset(2022, 2, 3, 4, 5, 6, TimeSpan.Zero), "QuickTime v1 timestamp mismatch");
     Console.WriteLine("  ✓ PASS: Late QuickTime mvhd v1 extracted successfully.");
 
@@ -128,12 +128,12 @@ try
     services.AddMediaAnalysis();
     var sp = services.BuildServiceProvider();
 
-    var diReader = sp.GetService<IMediaMetadataReader>();
-    var diHasher = sp.GetService<IContentHasher>();
-    Assert(diReader != null, "IMediaMetadataReader must be registered");
-    Assert(diHasher != null, "IContentHasher must be registered");
-    Assert(diReader is MetadataExtractorMediaMetadataReader, "Reader should be MetadataExtractorMediaMetadataReader");
-    Assert(diHasher is Blake3ContentHasher, "Hasher should be Blake3ContentHasher");
+    var diReader = sp.GetService<IMediaMetadataReaderBusinessLogicService>();
+    var diHasher = sp.GetService<IContentHasherBusinessLogicService>();
+    Assert(diReader != null, "IMediaMetadataReaderBusinessLogicService must be registered");
+    Assert(diHasher != null, "IContentHasherBusinessLogicService must be registered");
+    Assert(diReader is MetadataExtractorMediaMetadataReaderBusinessLogicService, "Reader should be MetadataExtractorMediaMetadataReaderBusinessLogicService");
+    Assert(diHasher is Blake3ContentHasherBusinessLogicService, "Hasher should be Blake3ContentHasherBusinessLogicService");
     Console.WriteLine("  ✓ PASS: Dependency Injection services correctly registered.");
 
     Console.WriteLine("\nALL TESTS PASSED SUCCESSFULLY! (9/9)");

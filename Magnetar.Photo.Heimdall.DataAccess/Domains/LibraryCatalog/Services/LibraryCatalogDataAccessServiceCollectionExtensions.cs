@@ -12,7 +12,7 @@ public static class LibraryCatalogDataAccessServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentException.ThrowIfNullOrWhiteSpace(databasePath);
 
-        services.AddSingleton<ILibraryCatalogDatabaseService>(_ => new SqliteLibraryCatalogDatabaseService(databasePath));
+        services.AddSingleton<ILibraryCatalogDataAccessDatabaseService>(_ => new SqliteLibraryCatalogDataAccessDatabaseService(databasePath));
         services.AddSingleton<IMediaFileScannerDataAccessIoService, PhysicalMediaFileScannerDataAccessIoService>();
         services.AddSingleton<ILibraryCatalogDataAccessService, LibraryCatalogDataAccessService>();
         return services;

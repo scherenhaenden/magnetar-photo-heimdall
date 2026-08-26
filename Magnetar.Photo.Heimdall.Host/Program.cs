@@ -15,8 +15,8 @@ var dataAccess = new ServiceCollection()
     .AddHeimdallDataAccess(databasePath)
     .BuildServiceProvider();
 var catalog = dataAccess.GetRequiredService<ILibraryCatalogDataAccessService>();
-var scanService = new LibraryScanService(catalog);
-var onboarding = new LibraryOnboardingFacade(scanService);
+var scanService = new LibraryScanBusinessLogicService(catalog);
+var onboarding = new LibraryOnboardingPresentationLogicService(scanService);
 var result = await onboarding.AddAndScanAsync(args[0], args[1]);
 
 Console.WriteLine($"Catalogued {result.Scan.CataloguedAssetCount} media assets from '{result.Library.DisplayName}'.");
