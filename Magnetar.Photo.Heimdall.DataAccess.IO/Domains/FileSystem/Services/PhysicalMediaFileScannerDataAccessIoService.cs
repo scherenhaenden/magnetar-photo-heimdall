@@ -3,11 +3,6 @@ using Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Mappers;
 
 namespace Magnetar.Photo.Heimdall.DataAccess.IO.Domains.FileSystem.Services;
 
-public interface IMediaFileScannerDataAccessIoService
-{
-    IAsyncEnumerable<DiscoveredMediaFileDataAccessIoModel> ScanAsync(string rootPath, CancellationToken cancellationToken = default);
-}
-
 public sealed class PhysicalMediaFileScannerDataAccessIoService : IMediaFileScannerDataAccessIoService
 {
     private static readonly HashSet<string> SupportedExtensions = new(StringComparer.OrdinalIgnoreCase)

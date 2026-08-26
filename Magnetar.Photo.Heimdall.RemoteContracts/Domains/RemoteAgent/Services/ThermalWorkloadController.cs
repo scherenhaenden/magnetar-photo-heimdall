@@ -1,29 +1,6 @@
 using Magnetar.Photo.Heimdall.RemoteContracts.Domains.RemoteAgent.Models;
-using Magnetar.Photo.Heimdall.RemoteContracts.Domains.RemoteAgent.Mappers;
 
 namespace Magnetar.Photo.Heimdall.RemoteContracts.Domains.RemoteAgent.Services;
-
-// ---------------------------------------------------------------------------
-// Internal controller state (superset of public ThermalState contract enum)
-// ---------------------------------------------------------------------------
-
-/// <summary>
-/// Internal state of the thermal controller.
-/// Cooling is a transient state between Critical and Normal
-/// that is not part of the public ThermalState contract enum;
-/// it is projected to AcceptNewWork=false, EffectiveConcurrency=0 in WorkloadDecision
-/// and reported as ThermalState.Critical from the controller's CurrentState property
-/// until hysteresis is satisfied.
-/// </summary>
-internal enum ThermalControllerState
-{
-    Normal,
-    Warning,
-    High,
-    Critical,
-    Cooling,
-    Unavailable
-}
 
 // ---------------------------------------------------------------------------
 // Thermal state machine — pure, deterministic, no I/O
@@ -164,32 +141,4 @@ public sealed class ThermalWorkloadController
     private static WorkloadDecision Decision(
         ThermalState state, int concurrency, bool accept, string reason)
         => new(state, concurrency, accept, reason);
-}
-
-// ---------------------------------------------------------------------------
-// Platform-Unavailable thermal provider
-// ---------------------------------------------------------------------------
-
-/// <summary>
-/// Thermal provider for platforms that have no accessible sensor (e.g. macOS
-/// without entitlement, sandboxed environments, CI runners).
-///
-/// Returns a genuine Unavailable snapshot — never fabricates Celsius readings.
-/// Clients and the ThermalWorkloadController must treat this as "safe but unknown"
-/// and apply conservative concurrency (HighConcurrency in the default policy).
-/// </summary>
-public sealed class UnavailableThermalProvider
-{
-    private readonly string _reason;
-
-    public UnavailableThermalProvider(string reason = "No thermal sensor is accessible on this platform.")
-    {
-        if (string.IsNullOrWhiteSpace(reason))
-            throw new ArgumentException("Reason must not be empty.", nameof(reason));
-        _reason = reason;
-    }
-
-    /// <summary>Always returns an Unavailable snapshot with an empty reading list.</summary>
-    public ThermalSnapshot GetSnapshot() =>
-        ThermalSnapshotMapper.Unavailable(_reason, DateTimeOffset.UtcNow);
 }
