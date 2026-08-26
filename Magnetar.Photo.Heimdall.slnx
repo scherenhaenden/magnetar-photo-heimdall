@@ -27,7 +27,28 @@
   <Folder Name="/80_SharedContracts/">
     <Project Path="Magnetar.Photo.Heimdall.RemoteContracts/Magnetar.Photo.Heimdall.RemoteContracts.csproj" />
   </Folder>
-  <Folder Name="/90_IntegrationTests/">
+  <Folder Name="/90_Tests/01_UnitTests/01_EntryPoints/">
+    <Project Path="Magnetar.Photo.Heimdall.Desktop.Tests/Magnetar.Photo.Heimdall.Desktop.Tests.csproj" />
+    <Project Path="Magnetar.Photo.Heimdall.Host.Tests/Magnetar.Photo.Heimdall.Host.Tests.csproj" />
+  </Folder>
+  <Folder Name="/90_Tests/01_UnitTests/02_PresentationLogic/">
+    <Project Path="Magnetar.Photo.Heimdall.PresentationLogic.Tests/Magnetar.Photo.Heimdall.PresentationLogic.Tests.csproj" />
+  </Folder>
+  <Folder Name="/90_Tests/01_UnitTests/03_BusinessLogic/">
+    <Project Path="Magnetar.Photo.Heimdall.BusinessLogic.Tests/Magnetar.Photo.Heimdall.BusinessLogic.Tests.csproj" />
+  </Folder>
+  <Folder Name="/90_Tests/01_UnitTests/04_DataAccess/">
+    <Project Path="Magnetar.Photo.Heimdall.DataAccess.Tests/Magnetar.Photo.Heimdall.DataAccess.Tests.csproj" />
+  </Folder>
+  <Folder Name="/90_Tests/01_UnitTests/05_DataAccessAdapters/">
+    <Project Path="Magnetar.Photo.Heimdall.DataAccess.Database.Tests/Magnetar.Photo.Heimdall.DataAccess.Database.Tests.csproj" />
+    <Project Path="Magnetar.Photo.Heimdall.DataAccess.IO.Tests/Magnetar.Photo.Heimdall.DataAccess.IO.Tests.csproj" />
+    <Project Path="Magnetar.Photo.Heimdall.DataAccess.Net.Tests/Magnetar.Photo.Heimdall.DataAccess.Net.Tests.csproj" />
+  </Folder>
+  <Folder Name="/90_Tests/01_UnitTests/80_SharedContracts/">
+    <Project Path="Magnetar.Photo.Heimdall.RemoteContracts.Tests/Magnetar.Photo.Heimdall.RemoteContracts.Tests.csproj" />
+  </Folder>
+  <Folder Name="/90_Tests/02_IntegrationTests/">
     <Project Path="Magnetar.Photo.Heimdall.Desktop.IntegrationTests/Magnetar.Photo.Heimdall.Desktop.IntegrationTests.csproj" />
     <Project Path="Magnetar.Photo.Heimdall.IntegrationTests/Magnetar.Photo.Heimdall.IntegrationTests.csproj" />
     <Project Path="Magnetar.Photo.Heimdall.MediaAnalysis.IntegrationTests/Magnetar.Photo.Heimdall.MediaAnalysis.IntegrationTests.csproj" />
