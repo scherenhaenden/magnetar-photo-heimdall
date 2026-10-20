@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -25,12 +26,22 @@ public sealed class ReviewPlanViewModel : INotifyPropertyChanged
     private bool _isLoading;
     private bool _hasError;
     private string? _errorMessage;
-    private bool _isEmpty = true;
+    private bool _isEmpty;
     private bool _isLoaded;
+    private bool _isUnloaded = true;
+    private bool _hasPlan;
+    private readonly ObservableCollection<PlanOperationViewModel> _operations = new();
+    private readonly ReadOnlyObservableCollection<PlanOperationViewModel> _readOnlyOperations;
+
+    public ReviewPlanViewModel()
+    {
+        _readOnlyOperations = new ReadOnlyObservableCollection<PlanOperationViewModel>(_operations);
+        _operations.CollectionChanged += OnOperationsChanged;
+    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public ObservableCollection<PlanOperationViewModel> Operations { get; } = new();
+    public ReadOnlyObservableCollection<PlanOperationViewModel> Operations => _readOnlyOperations;
 
     public bool IsLoading
     {
@@ -62,36 +73,67 @@ public sealed class ReviewPlanViewModel : INotifyPropertyChanged
         private set => SetProperty(ref _isLoaded, value);
     }
 
+    /// <summary>True until a plan, loading state, or error has been supplied.</summary>
+    public bool IsUnloaded
+    {
+        get => _isUnloaded;
+        private set => SetProperty(ref _isUnloaded, value);
+    }
+
     public void SetLoading()
     {
+        _hasPlan = false;
         IsLoading = true;
         HasError = false;
         ErrorMessage = null;
         IsEmpty = false;
         IsLoaded = false;
-        Operations.Clear();
+        IsUnloaded = false;
+        _operations.Clear();
     }
 
     public void SetError(string message)
     {
+        ArgumentNullException.ThrowIfNull(message);
+        _hasPlan = false;
         IsLoading = false;
         HasError = true;
         ErrorMessage = message;
         IsEmpty = false;
         IsLoaded = false;
-        Operations.Clear();
+        IsUnloaded = false;
+        _operations.Clear();
     }
 
     public void SetPlan(IEnumerable<PlanOperationViewModel> operations)
     {
+        ArgumentNullException.ThrowIfNull(operations);
+
+        // Enumerate before mutating the current view state. A failing or lazy
+        // source must not leave a partially replaced preview behind.
+        var materializedOperations = operations.ToArray();
+
+        _hasPlan = false;
         IsLoading = false;
         HasError = false;
         ErrorMessage = null;
-
-        Operations.Clear();
-        foreach (var op in operations)
+        _operations.Clear();
+        foreach (var operation in materializedOperations)
         {
-            Operations.Add(op);
+            _operations.Add(operation);
+        }
+
+        _hasPlan = true;
+        IsUnloaded = false;
+        IsEmpty = Operations.Count == 0;
+        IsLoaded = !IsEmpty;
+    }
+
+    private void OnOperationsChanged(object? sender, NotifyCollectionChangedEventArgs args)
+    {
+        if (!_hasPlan)
+        {
+            return;
         }
 
         IsEmpty = Operations.Count == 0;

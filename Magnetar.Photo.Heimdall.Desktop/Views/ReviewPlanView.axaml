@@ -24,6 +24,9 @@
       <!-- Empty State -->
       <TextBlock IsVisible="{Binding IsEmpty}" Text="No operations planned." Foreground="#BAC9CC" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="16"/>
 
+      <!-- Unloaded State -->
+      <TextBlock IsVisible="{Binding IsUnloaded}" Text="No plan loaded." Foreground="#BAC9CC" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="16"/>
+
       <!-- Error State -->
       <Border IsVisible="{Binding HasError}" Background="#33FF2222" BorderBrush="#FF2222" BorderThickness="1" CornerRadius="8" Padding="14" VerticalAlignment="Center" HorizontalAlignment="Center">
         <StackPanel Spacing="8">

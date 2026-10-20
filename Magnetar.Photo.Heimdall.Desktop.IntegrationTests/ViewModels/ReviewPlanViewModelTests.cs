@@ -6,7 +6,7 @@ namespace Magnetar.Photo.Heimdall.Desktop.IntegrationTests.ViewModels;
 public sealed class ReviewPlanViewModelTests
 {
     [Fact]
-    public void InitialState_IsEmpty()
+    public void InitialState_IsUnloaded()
     {
         // Arrange & Act
         var vm = new ReviewPlanViewModel();
@@ -15,8 +15,9 @@ public sealed class ReviewPlanViewModelTests
         Assert.False(vm.IsLoading);
         Assert.False(vm.HasError);
         Assert.Null(vm.ErrorMessage);
-        Assert.True(vm.IsEmpty);
+        Assert.False(vm.IsEmpty);
         Assert.False(vm.IsLoaded);
+        Assert.True(vm.IsUnloaded);
         Assert.Empty(vm.Operations);
     }
 
@@ -35,6 +36,7 @@ public sealed class ReviewPlanViewModelTests
         Assert.Null(vm.ErrorMessage);
         Assert.False(vm.IsEmpty);
         Assert.False(vm.IsLoaded);
+        Assert.False(vm.IsUnloaded);
     }
 
     [Fact]
@@ -53,6 +55,7 @@ public sealed class ReviewPlanViewModelTests
         Assert.Equal(error, vm.ErrorMessage);
         Assert.False(vm.IsEmpty);
         Assert.False(vm.IsLoaded);
+        Assert.False(vm.IsUnloaded);
     }
 
     [Fact]
@@ -73,7 +76,12 @@ public sealed class ReviewPlanViewModelTests
         Assert.False(vm.HasError);
         Assert.False(vm.IsEmpty);
         Assert.True(vm.IsLoaded);
-        Assert.Single(vm.Operations);
+        Assert.False(vm.IsUnloaded);
+        var operation = Assert.Single(vm.Operations);
+        Assert.Equal(ops[0].Source, operation.Source);
+        Assert.Equal(ops[0].Destination, operation.Destination);
+        Assert.Equal(ops[0].Action, operation.Action);
+        Assert.Equal(ops[0].Warning, operation.Warning);
     }
 
     [Fact]
@@ -90,6 +98,38 @@ public sealed class ReviewPlanViewModelTests
         Assert.False(vm.HasError);
         Assert.True(vm.IsEmpty);
         Assert.False(vm.IsLoaded);
+        Assert.False(vm.IsUnloaded);
         Assert.Empty(vm.Operations);
+    }
+
+    [Fact]
+    public void SetPlan_WhenEnumerationThrows_PreservesPreviousPlanAndState()
+    {
+        var vm = new ReviewPlanViewModel();
+        var existing = new PlanOperationViewModel("old-source", "old-destination", "Copy", "Keep me");
+        vm.SetPlan([existing]);
+
+        Assert.Throws<InvalidOperationException>(() => vm.SetPlan(ThrowAfterOne()));
+
+        var operation = Assert.Single(vm.Operations);
+        Assert.Same(existing, operation);
+        Assert.True(vm.IsLoaded);
+        Assert.False(vm.IsEmpty);
+        Assert.False(vm.HasError);
+    }
+
+    [Fact]
+    public void Operations_CannotBeMutatedByConsumers()
+    {
+        var vm = new ReviewPlanViewModel();
+        vm.SetPlan([new PlanOperationViewModel("source", "destination", "Copy")]);
+
+        Assert.IsAssignableFrom<System.Collections.ObjectModel.ReadOnlyObservableCollection<PlanOperationViewModel>>(vm.Operations);
+    }
+
+    private static IEnumerable<PlanOperationViewModel> ThrowAfterOne()
+    {
+        yield return new PlanOperationViewModel("partial-source", "partial-destination", "Move");
+        throw new InvalidOperationException("Synthetic enumeration failure.");
     }
 }
