@@ -11,6 +11,11 @@ public sealed class OrganizeViewModel : INotifyPropertyChanged
     private int _missingMetadataStrategyIndex;
     private int _collisionStrategyIndex;
 
+    public OrganizeViewModel()
+    {
+        PreviewItems.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasPreviewData));
+    }
+
     public string FolderPattern
     {
         get => _folderPattern;

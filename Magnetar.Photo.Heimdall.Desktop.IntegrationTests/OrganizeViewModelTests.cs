@@ -68,4 +68,23 @@ public class OrganizeViewModelTests
         Assert.Contains(nameof(vm.MissingMetadataStrategyIndex), propertyChanges);
         Assert.Contains(nameof(vm.CollisionStrategyIndex), propertyChanges);
     }
+
+    [Fact]
+    public void OrganizeViewModel_PreviewItemsChanged_RaisesHasPreviewDataPropertyChanged()
+    {
+        var vm = new OrganizeViewModel();
+        var propertyChanges = new List<string?>();
+        vm.PropertyChanged += (s, e) => propertyChanges.Add(e.PropertyName);
+
+        vm.PreviewItems.Add(new object());
+
+        Assert.True(vm.HasPreviewData);
+        Assert.Contains(nameof(vm.HasPreviewData), propertyChanges);
+
+        propertyChanges.Clear();
+        vm.PreviewItems.Clear();
+
+        Assert.False(vm.HasPreviewData);
+        Assert.Contains(nameof(vm.HasPreviewData), propertyChanges);
+    }
 }
