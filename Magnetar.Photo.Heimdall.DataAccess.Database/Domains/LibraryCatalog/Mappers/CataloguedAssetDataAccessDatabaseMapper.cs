@@ -8,5 +8,8 @@ internal static class CataloguedAssetDataAccessDatabaseMapper
 {
     public static CataloguedAssetDataAccessDatabaseModel FromReader(SqliteDataReader reader, Guid libraryId) =>
         new(Guid.Parse(reader.GetString(0)), libraryId, reader.GetString(1), reader.GetInt64(2),
-            DateTimeOffset.Parse(reader.GetString(3), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind));
+        DateTimeOffset.Parse(reader.GetString(3), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind),
+        reader.IsDBNull(4) ? null : reader.GetString(4),
+        reader.IsDBNull(5) ? null : reader.GetInt32(5),
+        reader.IsDBNull(6) ? null : reader.GetString(6));
 }

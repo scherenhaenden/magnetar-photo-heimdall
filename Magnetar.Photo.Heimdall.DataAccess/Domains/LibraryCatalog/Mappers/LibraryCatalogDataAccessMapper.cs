@@ -9,5 +9,5 @@ internal static class LibraryCatalogDataAccessMapper
         new(model.Id, model.DisplayName, model.CanonicalPath, model.CreatedAt);
 
     public static CataloguedAssetDataAccessModel ToDataAccessModel(CataloguedAssetDataAccessDatabaseModel model) =>
-        new(model.Id, model.LibraryId, model.RelativePath, model.Length, model.LastWriteUtc);
+        new(model.Id, model.LibraryId, model.RelativePath, model.Length, model.LastWriteUtc, model.HashAlgorithm, model.HashAlgorithmVersion, model.FullHash);
 }

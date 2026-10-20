@@ -9,6 +9,8 @@ public static class MediaAnalysisBusinessLogicServiceCollectionExtensions
     {
         services.AddSingleton<IMediaMetadataReaderBusinessLogicService, MetadataExtractorMediaMetadataReaderBusinessLogicService>();
         services.AddSingleton<IContentHasherBusinessLogicService, Blake3ContentHasherBusinessLogicService>();
+        services.AddSingleton<ExactDuplicateCandidateGrouperBusinessLogicService>();
+        services.AddSingleton<LibraryDuplicateAnalysisBusinessLogicService>();
         return services;
     }
 }

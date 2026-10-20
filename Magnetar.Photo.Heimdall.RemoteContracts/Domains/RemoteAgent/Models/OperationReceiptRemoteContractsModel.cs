@@ -10,4 +10,5 @@ public sealed record OperationReceiptRemoteContractsModel(
     OperationStatusRemoteContractsModel Status,
     DateTimeOffset AcceptedAt,
     int EffectiveConcurrency,
-    string? Reason = null);
+    string? Reason = null,
+    string? ResultJson = null);

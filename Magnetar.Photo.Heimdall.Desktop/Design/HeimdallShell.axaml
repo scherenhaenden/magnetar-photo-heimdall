@@ -27,37 +27,17 @@
               </StackPanel>
 
               <StackPanel Grid.Row="1" Margin="-16,34,0,0" Spacing="2">
-                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
-                  <TextBlock Classes="heimdall-label" Text="▦    RESUMEN" />
-                </Border>
-                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
-                  <TextBlock Classes="heimdall-label" Text="▤    BIBLIOTECAS" />
-                </Border>
-                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
-                  <TextBlock Classes="heimdall-label" Text="◫    EXPLORAR" />
-                </Border>
-                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
-                  <TextBlock Classes="heimdall-label" Text="▣    DUPLICADOS" />
-                </Border>
-                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
-                  <TextBlock Classes="heimdall-label" Text="◇    ORGANIZAR" />
-                </Border>
+                <Button Name="NavSummary" Classes="heimdall-nav-item" HorizontalContentAlignment="Stretch" Content="▦    RESUMEN" Tag="Summary" />
+                <Button Name="NavLibraries" Classes="heimdall-nav-item" HorizontalContentAlignment="Stretch" Content="▤    BIBLIOTECAS" Tag="Libraries" />
+                <Button Name="NavExplore" Classes="heimdall-nav-item" HorizontalContentAlignment="Stretch" Content="◫    EXPLORAR" Tag="Explore" />
+                <Button Name="NavDuplicates" Classes="heimdall-nav-item" HorizontalContentAlignment="Stretch" Content="▣    DUPLICADOS" Tag="Duplicates" />
+                <Button Name="NavOrganize" Classes="heimdall-nav-item" HorizontalContentAlignment="Stretch" Content="◇    ORGANIZAR" Tag="Organize" />
                 <Border Height="1" Margin="16,10" Background="#1A849396" />
-                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
-                  <TextBlock Classes="heimdall-label" Text="↗    EXPORTAR" />
-                </Border>
-                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
-                  <TextBlock Classes="heimdall-label" Text="▣    COPIAS DE SEGURIDAD" />
-                </Border>
-                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
-                  <TextBlock Classes="heimdall-label" Text="◴    ACTIVIDAD" />
-                </Border>
-                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
-                  <TextBlock Classes="heimdall-label" Text="≋    RENDIMIENTO" />
-                </Border>
-                <Border Classes="heimdall-nav-item" Padding="16,9" CornerRadius="0,20,20,0">
-                  <TextBlock Classes="heimdall-label" Text="⚙    AJUSTES" />
-                </Border>
+                <Button Classes="heimdall-nav-item" HorizontalContentAlignment="Stretch" Content="↗    EXPORTAR" Tag="Unavailable" />
+                <Button Classes="heimdall-nav-item" HorizontalContentAlignment="Stretch" Content="▣    COPIAS DE SEGURIDAD" Tag="Unavailable" />
+                <Button Classes="heimdall-nav-item" HorizontalContentAlignment="Stretch" Content="◴    ACTIVIDAD" Tag="Unavailable" />
+                <Button Classes="heimdall-nav-item" HorizontalContentAlignment="Stretch" Content="≋    RENDIMIENTO" Tag="Unavailable" />
+                <Button Classes="heimdall-nav-item" HorizontalContentAlignment="Stretch" Content="⚙    AJUSTES" Tag="Settings" />
               </StackPanel>
 
               <StackPanel Grid.Row="2" Spacing="8">
@@ -97,13 +77,18 @@
   </ResourceDictionary>
   </Styles.Resources>
 
-  <Style Selector="Border.heimdall-nav-item">
+  <Style Selector="Button.heimdall-nav-item">
     <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{StaticResource HeimdallMutedTextBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="16,9" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
   </Style>
-  <Style Selector="Border.heimdall-nav-item:pointerover">
+  <Style Selector="Button.heimdall-nav-item:pointerover">
     <Setter Property="Background" Value="{StaticResource HeimdallSurfaceHighBrush}" />
   </Style>
-  <Style Selector="Border.heimdall-nav-item:focus">
+  <Style Selector="Button.heimdall-nav-item:focus">
     <Setter Property="Background" Value="#80273647" />
   </Style>
 </Styles>

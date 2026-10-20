@@ -13,12 +13,18 @@ namespace Magnetar.Photo.Heimdall.BusinessLogic.Domains.MediaAnalysis.Services;
 /// <b>Quick fingerprint (Version 1)</b>: BLAKE3 over <c>Length_LE8 || first_1MiB || last_1MiB</c>.
 /// The file length is mixed in first so that padding attacks on small files are impractical.
 /// For files ≤ 2 MiB the sampled window equals the full file (same bytes, potentially different hash
-/// because the length prefix is always included).
+/// because the length prefix is always included). The consistency check detects ordinary concurrent
+/// writes, truncation, and replacement that changes length or modification time. It is not an
+/// adversarial same-size replacement detector: the timestamp is read through the path and can be
+/// restored. Callers must treat this as best-effort stability evidence, not a content lock.
 /// </remarks>
 public sealed class Blake3ContentHasherBusinessLogicService : IContentHasherBusinessLogicService
 {
     /// <summary>Current fingerprint scheme version. Bump when the quick-hash algorithm changes.</summary>
     public const int FingerprintVersion = 1;
+
+    /// <summary>Version of the full-content BLAKE3 digest stored in the catalog.</summary>
+    public const int FullHashVersion = 1;
 
     private const int ReadBufferSize   = 128 * 1024;       // 128 KiB per I/O call
     private const long QuickWindowSize = 1024L * 1024;     // 1 MiB head + 1 MiB tail
@@ -38,7 +44,12 @@ public sealed class Blake3ContentHasherBusinessLogicService : IContentHasherBusi
             ReadBufferSize,
             FileOptions.Asynchronous | FileOptions.SequentialScan);
 
+        var fileInfo = new FileInfo(filePath);
+        fileInfo.Refresh();
         var fileLength = stream.Length;
+        var initialLastWriteUtc = fileInfo.LastWriteTimeUtc;
+        if (!fileInfo.Exists || fileInfo.Length != fileLength)
+            throw new IOException("File identity changed while the hash stream was being opened.");
         var tailStart  = Math.Max(QuickWindowSize, fileLength - QuickWindowSize);
 
         using var fullHasher  = Hasher.New();
@@ -86,11 +97,29 @@ public sealed class Blake3ContentHasherBusinessLogicService : IContentHasherBusi
             position += read;
         }
 
+        fileInfo.Refresh();
+        EnsureStableRead(fileLength, position, stream.Length, initialLastWriteUtc, fileInfo.LastWriteTimeUtc, fileInfo.Exists);
+
         return new HashEvidenceBusinessLogicModel(
             Algorithm:        "BLAKE3",
             QuickFingerprintVersion: FingerprintVersion,
             FullHash:         fullHasher.Finalize().ToString(),
             QuickFingerprint: quickHasher.Finalize().ToString(),
             FileLength:       fileLength);
+    }
+
+    internal static void EnsureStableRead(
+        long expectedLength,
+        long bytesRead,
+        long finalStreamLength,
+        DateTime initialLastWriteUtc,
+        DateTime finalLastWriteUtc,
+        bool fileExists)
+    {
+        if (!fileExists || bytesRead != expectedLength || finalStreamLength != expectedLength ||
+            initialLastWriteUtc != finalLastWriteUtc)
+        {
+            throw new IOException("File changed while its content was being hashed; hash evidence was discarded.");
+        }
     }
 }

@@ -22,13 +22,13 @@
     <StackPanel Margin="24" Spacing="20" MaxWidth="1280">
       <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,4">
         <StackPanel Spacing="5">
-          <TextBlock Text="Source Libraries" FontSize="32" FontWeight="SemiBold" Foreground="#D4E4FA" />
-          <TextBlock Text="Gestiona volúmenes locales, mounts y fuentes remotas SSH." Foreground="#BAC9CC" />
+          <TextBlock Text="Duplicados de fotos en la NAS" FontSize="32" FontWeight="SemiBold" Foreground="#D4E4FA" />
+          <TextBlock Text="Conecta por SSH y compara archivos en el propio NAS; el Mac solo recibe el resultado." Foreground="#BAC9CC" />
         </StackPanel>
         <Button Grid.Column="1" Content="Filtrar" VerticalAlignment="Bottom" IsEnabled="False" ToolTip.Tip="Filtro disponible cuando el catálogo pueda listar bibliotecas." />
       </Grid>
 
-      <Border Classes="library-panel" Padding="0">
+      <Border Classes="library-panel" Padding="0" IsVisible="False">
         <Grid RowDefinitions="Auto,Auto,Auto" Margin="0">
           <Grid ColumnDefinitions="3*,*,*,*,*,Auto" ColumnSpacing="12" Background="#801C2B3C" Margin="16">
             <TextBlock Classes="table-header" Text="BIBLIOTECA / RUTA" />
@@ -53,7 +53,7 @@
         </Grid>
       </Border>
 
-      <Border Classes="library-panel" Padding="20">
+      <Border Classes="library-panel" Padding="20" IsVisible="False">
         <StackPanel Spacing="16">
           <StackPanel Spacing="4">
             <TextBlock Text="Añadir biblioteca local" FontSize="18" FontWeight="SemiBold" Foreground="#D4E4FA" />
@@ -83,12 +83,139 @@
         </StackPanel>
       </Border>
 
-      <Border Classes="library-panel" Padding="16" Background="#660D1C2D">
-        <StackPanel Spacing="5">
-          <TextBlock Text="Fuentes de ejemplo — backend pendiente" FontSize="11" FontWeight="SemiBold" Foreground="#849396" />
-          <TextBlock Text="NAS Studio · ssh://nas-studio · Syncing (SSH)     |     SSD Import · /Volumes/SSD_EXT · Mount (solo lectura)" Foreground="#BAC9CC" TextWrapping="Wrap" />
+      <Border Classes="library-panel" Padding="20">
+        <StackPanel Spacing="14">
+          <StackPanel Spacing="4">
+            <TextBlock Text="Análisis remoto de duplicados" FontSize="18" FontWeight="SemiBold" Foreground="#D4E4FA" />
+            <TextBlock Text="El agente ejecuta el escaneo y BLAKE3 junto a los archivos. Esta acción es de solo lectura y no borra ni mueve fotos." Foreground="#BAC9CC" TextWrapping="Wrap" />
+          </StackPanel>
+          <Border Background="#66101B28" CornerRadius="6" Padding="14">
+            <StackPanel Spacing="10">
+              <TextBlock Text="Conexión segura a la NAS" FontSize="14" FontWeight="SemiBold" Foreground="#D4E4FA" />
+              <Grid ColumnDefinitions="2*,*,*" ColumnSpacing="10">
+                <StackPanel Spacing="4"><TextBlock Text="Host o IP" Foreground="#BAC9CC" FontSize="11"/><TextBox Text="{Binding RemoteSshHost}" PlaceholderText="192.168.68.102" /></StackPanel>
+                <StackPanel Grid.Column="1" Spacing="4"><TextBlock Text="Puerto SSH" Foreground="#BAC9CC" FontSize="11"/><TextBox Text="{Binding RemoteSshPort}" /></StackPanel>
+                <StackPanel Grid.Column="2" Spacing="4"><TextBlock Text="Usuario" Foreground="#BAC9CC" FontSize="11"/><TextBox Text="{Binding RemoteSshUsername}" PlaceholderText="Edward" /></StackPanel>
+              </Grid>
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="Llave privada de esta conexión" Foreground="#BAC9CC" FontSize="11" />
+                  <TextBox Text="{Binding RemoteSshPrivateKeyPath}" IsReadOnly="True" Watermark="Selecciona una llave dedicada de Heimdall" />
+                </StackPanel>
+                <Button Grid.Column="1" Content="Elegir llave…" Command="{Binding ChooseSshKeyCommand}" VerticalAlignment="Bottom" />
+              </Grid>
+              <Button Content="Crear llave dedicada de Heimdall…" Command="{Binding CreateDedicatedSshKeyCommand}" HorizontalAlignment="Left" />
+              <StackPanel Spacing="4">
+                <TextBlock Text="Huella SHA-256 del host SSH" Foreground="#BAC9CC" FontSize="11" />
+                <TextBox Text="{Binding RemoteSshHostKeySha256}" PlaceholderText="SHA256:… (verificada por el administrador de la NAS)" />
+              </StackPanel>
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <TextBlock Text="La configuración se guarda en los datos privados de tu usuario. Heimdall guarda solo la ruta de la llave, nunca su contenido ni la contraseña en SQLite." Foreground="#849396" TextWrapping="Wrap" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Guardar conexión" Command="{Binding SaveRemoteSshSettingsCommand}" MinWidth="150" />
+              </Grid>
+            </StackPanel>
+          </Border>
+          <Border Classes="library-panel" Padding="16">
+            <StackPanel Spacing="12">
+              <StackPanel Spacing="4">
+                <TextBlock Text="Consolidar directorios en una biblioteca" FontSize="18" FontWeight="SemiBold" Foreground="#D4E4FA" />
+                <TextBlock Text="Elige una biblioteca destino y una o más raíces fuente autorizadas. Las fuentes se comparan como archivos; solo faltantes se copiarán al destino después de revisar un plan." Foreground="#BAC9CC" TextWrapping="Wrap" />
+              </StackPanel>
+              <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                <Button Content="Conectar / actualizar bibliotecas" Command="{Binding ConnectRemoteAgentCommand}" IsEnabled="{Binding IsInputEnabled}" />
+                <ComboBox Grid.Column="1" ItemsSource="{Binding RemoteAllowedRoots}" SelectedItem="{Binding RemoteSelectedRoot, Mode=TwoWay}" IsEnabled="{Binding IsInputEnabled}" PlaceholderText="Biblioteca destino">
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="{Binding DisplayName}" />
+                    <TextBlock Text="{Binding Id}" Foreground="#849396" />
+                  </StackPanel>
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+              </Grid>
+              <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                <ComboBox ItemsSource="{Binding SourceRootCandidates}" SelectedItem="{Binding SourceRootCandidate, Mode=TwoWay}" PlaceholderText="Selecciona una raíz fuente" IsEnabled="{Binding IsInputEnabled}">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <StackPanel Orientation="Horizontal" Spacing="8"><TextBlock Text="{Binding DisplayName}"/><TextBlock Text="{Binding Id}" Foreground="#849396"/></StackPanel>
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button Grid.Column="1" Content="Añadir fuente" Command="{Binding AddSourceRootCommand}" />
+                <Button Grid.Column="2" Content="Quitar seleccionada" Command="{Binding RemoveSourceRootCommand}" />
+              </Grid>
+              <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+                <StackPanel Spacing="5">
+                  <TextBlock Text="FUENTES SELECCIONADAS" FontSize="10" FontWeight="Bold" Foreground="#BAC9CC" />
+                  <ListBox ItemsSource="{Binding SelectedSourceRoots}" SelectedItem="{Binding SourceRootToRemove, Mode=TwoWay}" MinHeight="88" MaxHeight="150">
+                    <ListBox.ItemTemplate>
+                      <DataTemplate><StackPanel Orientation="Horizontal" Spacing="8" Margin="4"><TextBlock Text="{Binding DisplayName}"/><TextBlock Text="{Binding Id}" Foreground="#849396"/></StackPanel></DataTemplate>
+                    </ListBox.ItemTemplate>
+                  </ListBox>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Spacing="5">
+                  <TextBlock Text="ESQUEMA DE LA BIBLIOTECA DESTINO" FontSize="10" FontWeight="Bold" Foreground="#BAC9CC" />
+                  <ComboBox ItemsSource="{Binding OrganizerFolderPatternOptions}" SelectedItem="{Binding SelectedOrganizerProfile.FolderPattern, Mode=TwoWay}" />
+                  <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <StackPanel Spacing="3"><TextBlock Text="Sin fecha" FontSize="10" Foreground="#BAC9CC"/><TextBox Text="{Binding SelectedOrganizerProfile.MissingDateFolder}" Watermark="nodate"/></StackPanel>
+                    <StackPanel Grid.Column="1" Spacing="3"><TextBlock Text="Sin cámara" FontSize="10" Foreground="#BAC9CC"/><TextBox Text="{Binding SelectedOrganizerProfile.MissingCameraFolder}" Watermark="unknown"/></StackPanel>
+                  </Grid>
+                  <StackPanel Spacing="3"><TextBlock Text="Plantilla del nombre de archivo" FontSize="10" Foreground="#BAC9CC"/><TextBox Text="{Binding SelectedOrganizerProfile.FilenameTemplate}" Watermark="e.g. {filename}"/></StackPanel>
+                  <TextBlock Text="{Binding SelectedOrganizerProfile.CollisionPolicy}" FontSize="11" Foreground="#C3F5FF" TextWrapping="Wrap" />
+                </StackPanel>
+              </Grid>
+              <Border Background="#332E2100" BorderBrush="#806D571C" BorderThickness="1" CornerRadius="5" Padding="10">
+                <TextBlock Text="{Binding ConsolidationCapabilityStatus}" Foreground="#F2D893" TextWrapping="Wrap" />
+              </Border>
+            </StackPanel>
+          </Border>
+          <Button Content="Analizar archivos de la biblioteca destino (solo lectura)" Command="{Binding AnalyzeRemoteDuplicatesCommand}" HorizontalAlignment="Left" MinWidth="300" />
+          <ProgressBar IsVisible="{Binding IsBusy}" IsIndeterminate="True" Height="4" />
+          <Border IsVisible="{Binding HasRemoteError}" Background="#3393000A" BorderBrush="#FFB4AB" BorderThickness="1" CornerRadius="4" Padding="12">
+            <TextBlock Text="{Binding RemoteErrorMessage}" Foreground="#FFB4AB" TextWrapping="Wrap" />
+          </Border>
+          <TextBlock Text="{Binding RemoteStatusMessage}" Foreground="#BAC9CC" TextWrapping="Wrap" />
+          <Border IsVisible="{Binding HasRemoteResult}" Background="#661C2B3C" CornerRadius="6" Padding="12">
+            <StackPanel Spacing="8">
+              <TextBlock Text="RESULTADO DEL ANÁLISIS" FontSize="11" FontWeight="Bold" Foreground="#00E5FF" />
+              <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="12">
+                <StackPanel><TextBlock Text="Activos escaneados" FontSize="10" Foreground="#849396"/><TextBlock Text="{Binding RemoteScannedAssetCount}" Foreground="#D4E4FA"/></StackPanel>
+                <StackPanel Grid.Column="1"><TextBlock Text="Candidatos por tamaño" FontSize="10" Foreground="#849396"/><TextBlock Text="{Binding RemoteCandidateFileCount}" Foreground="#D4E4FA"/></StackPanel>
+                <StackPanel Grid.Column="2"><TextBlock Text="Hashes BLAKE3 calculados" FontSize="10" Foreground="#849396"/><TextBlock Text="{Binding RemoteHashesComputed}" Foreground="#D4E4FA"/></StackPanel>
+                <StackPanel Grid.Column="3"><TextBlock Text="Incidencias" FontSize="10" Foreground="#849396"/><TextBlock Text="{Binding RemoteIssueCount}" Foreground="#D4E4FA"/></StackPanel>
+                <StackPanel Grid.Column="4"><TextBlock Text="Concurrencia efectiva" FontSize="10" Foreground="#849396"/><TextBlock Text="{Binding RemoteEffectiveConcurrency}" Foreground="#D4E4FA"/></StackPanel>
+              </Grid>
+              <TextBlock IsVisible="{Binding HasNoRemoteDuplicateGroups}" Text="No se encontraron grupos duplicados en este análisis." Foreground="#BAC9CC" />
+              <ItemsControl ItemsSource="{Binding RemoteDuplicateGroups}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Border Background="#80101B28" CornerRadius="4" Padding="10" Margin="0,3">
+                      <StackPanel Spacing="6">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                          <TextBlock Text="{Binding GroupLabel}" FontWeight="SemiBold" Foreground="#D4E4FA" />
+                          <TextBlock Grid.Column="1" Text="{Binding FileCountLabel}" Foreground="#00E5FF" />
+                        </Grid>
+                        <TextBlock Text="{Binding SizeLabel}" Foreground="#BAC9CC" />
+                        <TextBlock Text="{Binding AlgorithmLabel}" Foreground="#BAC9CC" />
+                        <TextBlock Text="{Binding FullHash}" FontFamily="Consolas" FontSize="10" Foreground="#849396" TextWrapping="Wrap" />
+                        <ItemsControl ItemsSource="{Binding RelativePaths}">
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                              <TextBlock Text="{Binding}" FontFamily="Consolas" FontSize="11" Foreground="#D4E4FA" TextWrapping="Wrap" />
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </StackPanel>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
         </StackPanel>
       </Border>
+
     </StackPanel>
   </ScrollViewer>
 </UserControl>

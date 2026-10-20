@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.11" />
+    <PackageReference Include="Blake3" Version="3.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Magnetar.Photo.Heimdall.RemoteContracts/Magnetar.Photo.Heimdall.RemoteContracts.csproj" />
+    <ProjectReference Include="../Magnetar.Photo.Heimdall.BusinessLogic/Magnetar.Photo.Heimdall.BusinessLogic.csproj" />
+    <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess/Magnetar.Photo.Heimdall.DataAccess.csproj" />
+    <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess.Database/Magnetar.Photo.Heimdall.DataAccess.Database.csproj" />
+    <ProjectReference Include="../Magnetar.Photo.Heimdall.DataAccess.IO/Magnetar.Photo.Heimdall.DataAccess.IO.csproj" />
+  </ItemGroup>
+</Project>

@@ -31,9 +31,32 @@ public partial class App : Application
                 return result.Count > 0 ? result[0].TryGetLocalPath() : null;
             }
 
+            async Task<string?> PickSshKeyAsync()
+            {
+                var result = await mainWindow.StorageProvider.OpenFilePickerAsync(
+                    new FilePickerOpenOptions
+                    {
+                        Title = "Elige la llave privada SSH para Heimdall",
+                        AllowMultiple = false,
+                        FileTypeFilter = [new FilePickerFileType("Llaves privadas SSH") { Patterns = ["*"] }],
+                    });
+                return result.Count > 0 ? result[0].TryGetLocalPath() : null;
+            }
+
+            var remoteConfiguration = DesktopComposition.CreateRemoteDuplicateAnalysisFacade();
             mainWindow.DataContext = new LibraryScreenViewModel(
                 DesktopComposition.CreateOnboardingFacade(),
-                PickFolderAsync);
+                PickFolderAsync,
+                remoteConfiguration.Service,
+                remoteConfiguration.RootId,
+                remoteConfiguration.ConfigurationError,
+                remoteConfiguration.Settings,
+                PickSshKeyAsync,
+                settings =>
+                {
+                    var configured = DesktopComposition.CreateRemoteDuplicateAnalysisFacade(settings);
+                    return (configured.Service, configured.ConfigurationError);
+                });
 
             desktop.MainWindow = mainWindow;
         }

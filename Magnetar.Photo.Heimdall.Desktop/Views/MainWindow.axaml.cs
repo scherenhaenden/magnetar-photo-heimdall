@@ -1,46 +1,52 @@
 using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Magnetar.Photo.Heimdall.Desktop.ViewModels;
+using Avalonia.VisualTree;
+using Magnetar.Photo.Heimdall.Desktop.Controls;
 
 namespace Magnetar.Photo.Heimdall.Desktop.Views;
 
 public partial class MainWindow : Window
 {
-    public MainWindow() => InitializeComponent();
+    private HeimdallShell? _shell;
+    private Control? _librariesPage;
 
-    private void ShowExploreLibraryPreview(object? sender, RoutedEventArgs e) =>
-        ShowPreview("Heimdall — Explore library", new ExploreLibraryView());
-
-    private void ShowDuplicateDecisionPreview(object? sender, RoutedEventArgs e) =>
-        ShowPreview("Heimdall — Review duplicates", new DuplicateDecisionView());
-
-    private void ShowOrganizePreview(object? sender, RoutedEventArgs e) =>
-        ShowPreview("Heimdall — Organize photos", new OrganizeView());
-
-    private void ShowReviewPlanPreview(object? sender, RoutedEventArgs e) =>
-        ShowPreview("Heimdall — Review plan", new ReviewPlanView());
-
-    private void ShowLibrariesPreview(object? sender, RoutedEventArgs e) =>
-        ShowPreview("Heimdall — Source libraries", new LibrariesView { DataContext = LibraryScreen });
-
-    private void ShowSummaryPreview(object? sender, RoutedEventArgs e) =>
-        ShowPreview("Heimdall — Summary", new SummaryView { DataContext = new SummaryScreenViewModel(LibraryScreen) });
-
-    private LibraryScreenViewModel LibraryScreen => DataContext as LibraryScreenViewModel
-        ?? throw new InvalidOperationException("MainWindow requires LibraryScreenViewModel as its DataContext.");
-
-    private void ShowPreview(string title, Control content)
+    public MainWindow()
     {
-        var preview = new Window
-        {
-            Title = title,
-            Width = 1180,
-            Height = 760,
-            MinWidth = 920,
-            MinHeight = 580,
-            Content = content,
-        };
+        InitializeComponent();
+        Opened += (_, _) => WireNavigation();
+    }
 
-        preview.Show(this);
+    private void WireNavigation()
+    {
+        _shell ??= this.GetVisualDescendants().OfType<HeimdallShell>().FirstOrDefault();
+        if (_shell is null) return;
+        _librariesPage ??= _shell.Content as Control;
+
+        foreach (var button in _shell.GetVisualDescendants().OfType<Button>().Where(button => button.Tag is string))
+        {
+            if (Equals(button.Tag, "Unavailable"))
+            {
+                button.IsEnabled = false;
+                continue;
+            }
+
+            button.Click -= OnNavigationClick;
+            button.Click += OnNavigationClick;
+        }
+    }
+
+    private void OnNavigationClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string section } || _shell is null) return;
+        Control? page = section switch
+        {
+            "Libraries" or "Duplicates" or "Settings" => _librariesPage,
+            "Summary" => new SummaryView(),
+            "Explore" => new ExploreLibraryView(),
+            "Organize" => new OrganizeView(),
+            _ => null,
+        };
+        if (page is null) return;
+        page.DataContext = DataContext;
+        _shell.Content = page;
     }
 }

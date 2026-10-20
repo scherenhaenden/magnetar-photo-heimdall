@@ -24,6 +24,7 @@ public sealed class ThermalWorkloadRemoteContractsService
     private readonly WorkloadPolicyRemoteContractsModel _policy;
     private DateTimeOffset? _criticalSince;
     private DateTimeOffset? _safeSince;
+    private DateTimeOffset? _lastObservedAt;
     private ThermalControllerRemoteContractsServiceState _state = ThermalControllerRemoteContractsServiceState.Unavailable;
 
     public ThermalWorkloadRemoteContractsService(WorkloadPolicyRemoteContractsModel policy)
@@ -31,6 +32,23 @@ public sealed class ThermalWorkloadRemoteContractsService
         policy.Validate();
         _policy = policy;
     }
+
+    /// <summary>Restores time markers that must survive process-per-request agent invocations.</summary>
+    public void RestoreState(ThermalWorkloadStateSnapshotRemoteContractsModel snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        _criticalSince = snapshot.CriticalSince;
+        _safeSince = snapshot.SafeSince;
+        _lastObservedAt = snapshot.LastObservedAt;
+        _state = snapshot.CriticalSince is null
+            ? ThermalControllerRemoteContractsServiceState.Unavailable
+            : snapshot.SafeSince is null
+                ? ThermalControllerRemoteContractsServiceState.Critical
+                : ThermalControllerRemoteContractsServiceState.Cooling;
+    }
+
+    /// <summary>Returns persisted state for the next short-lived agent process.</summary>
+    public ThermalWorkloadStateSnapshotRemoteContractsModel CaptureState() => new(_criticalSince, _safeSince, _lastObservedAt);
 
     /// <summary>
     /// Current public state, exposed for diagnostics.
@@ -52,6 +70,15 @@ public sealed class ThermalWorkloadRemoteContractsService
     /// </summary>
     public WorkloadDecisionRemoteContractsModel Observe(ThermalSnapshotRemoteContractsModel snapshot, DateTimeOffset now)
     {
+        if (_safeSince is not null &&
+            (_lastObservedAt is null || snapshot.ObservedAt <= _lastObservedAt.Value ||
+             snapshot.ObservedAt - _lastObservedAt.Value > _policy.ReadingStalenessWindow))
+        {
+            // We cannot claim continuous cooling across a long or non-monotonic observation gap.
+            _safeSince = null;
+        }
+
+        _lastObservedAt = snapshot.ObservedAt;
         if (!HasUsableTelemetry(snapshot, now))
         {
             if (_criticalSince is not null)
@@ -142,3 +169,9 @@ public sealed class ThermalWorkloadRemoteContractsService
         ThermalStateRemoteContractsModel state, int concurrency, bool accept, string reason)
         => new(state, concurrency, accept, reason);
 }
+
+/// <summary>Persistent timestamps needed to enforce continuous cooling across agent process restarts.</summary>
+public sealed record ThermalWorkloadStateSnapshotRemoteContractsModel(
+    DateTimeOffset? CriticalSince,
+    DateTimeOffset? SafeSince,
+    DateTimeOffset? LastObservedAt);

@@ -24,6 +24,12 @@
   <Folder Name="/05_DataAccessAdapters/03_Net/">
     <Project Path="Magnetar.Photo.Heimdall.DataAccess.Net/Magnetar.Photo.Heimdall.DataAccess.Net.csproj" />
   </Folder>
+  <Folder Name="/05_DataAccessAdapters/04_RemoteAgent/">
+    <Project Path="Magnetar.Photo.Heimdall.RemoteAgent.Ssh/Magnetar.Photo.Heimdall.RemoteAgent.Ssh.csproj" />
+  </Folder>
+  <Folder Name="/01_EntryPoints/03_RemoteAgent/">
+    <Project Path="Magnetar.Photo.Heimdall.RemoteAgent.Host/Magnetar.Photo.Heimdall.RemoteAgent.Host.csproj" />
+  </Folder>
   <Folder Name="/80_SharedContracts/">
     <Project Path="Magnetar.Photo.Heimdall.RemoteContracts/Magnetar.Photo.Heimdall.RemoteContracts.csproj" />
   </Folder>
@@ -47,6 +53,10 @@
   </Folder>
   <Folder Name="/90_Tests/01_UnitTests/80_SharedContracts/">
     <Project Path="Magnetar.Photo.Heimdall.RemoteContracts.Tests/Magnetar.Photo.Heimdall.RemoteContracts.Tests.csproj" />
+  </Folder>
+  <Folder Name="/90_Tests/01_UnitTests/81_RemoteAgent/">
+    <Project Path="Magnetar.Photo.Heimdall.RemoteAgent.Ssh.Tests/Magnetar.Photo.Heimdall.RemoteAgent.Ssh.Tests.csproj" />
+    <Project Path="Magnetar.Photo.Heimdall.RemoteAgent.Host.Tests/Magnetar.Photo.Heimdall.RemoteAgent.Host.Tests.csproj" />
   </Folder>
   <Folder Name="/90_Tests/02_IntegrationTests/">
     <Project Path="Magnetar.Photo.Heimdall.Desktop.IntegrationTests/Magnetar.Photo.Heimdall.Desktop.IntegrationTests.csproj" />

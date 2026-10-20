@@ -40,7 +40,11 @@ Cada mensaje lleva un campo `ProtocolVersion { Major, Minor }`.
 
 ## 4. Límites de ruta — defensa en profundidad
 
-`OperationRequest.RelativePath` es validado en **dos capas**:
+`OperationRequest.RelativePath` es validado en **dos capas**. El valor vacío
+selecciona la raíz publicada por `RootId` únicamente para `Scan`, `Hash` y
+`DuplicateScan`; nunca significa el directorio de trabajo del proceso. El host
+actual solo opera sobre esa raíz registrada, sin subpaths solicitados por el
+cliente.
 
 1. **Contrato (cliente):** `RemotePath.ValidateRelative` rechaza en el punto de
    construcción del mensaje:

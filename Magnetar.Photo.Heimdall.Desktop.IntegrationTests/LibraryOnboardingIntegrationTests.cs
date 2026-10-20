@@ -4,6 +4,7 @@ using Magnetar.Photo.Heimdall.DataAccess.Domains.LibraryCatalog.Services;
 using Magnetar.Photo.Heimdall.Desktop.ViewModels;
 using Magnetar.Photo.Heimdall.PresentationLogic.Domains.LibraryOnboarding.Services;
 using Microsoft.Extensions.DependencyInjection;
+using System.Runtime.InteropServices;
 using Xunit;
 
 namespace Magnetar.Photo.Heimdall.Desktop.IntegrationTests;
@@ -17,7 +18,9 @@ public sealed class LibraryOnboardingIntegrationTests : IDisposable
 {
     // Each test instance gets its own isolated temp directory.
     private readonly string _testRoot = Path.Combine(
-        Path.GetTempPath(),
+        RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && Directory.Exists("/private/tmp")
+            ? "/private/tmp"
+            : Path.GetTempPath(),
         $"heimdall-desktop-it-{Guid.NewGuid():N}");
 
     public LibraryOnboardingIntegrationTests() =>

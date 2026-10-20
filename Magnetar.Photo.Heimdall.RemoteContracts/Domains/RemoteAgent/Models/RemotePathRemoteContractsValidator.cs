@@ -3,12 +3,16 @@ namespace Magnetar.Photo.Heimdall.RemoteContracts.Domains.RemoteAgent.Models;
 /// <summary>
 /// Validates relative paths used in OperationRequestRemoteContractsModel.
 /// Absolute paths, backslashes, null bytes, empty segments, and traversal
-/// sequences are all rejected at the contract layer before any I/O occurs.
+/// sequences are rejected before I/O. The explicitly enabled empty-root mode
+/// represents only the configured RootId, never a process working directory.
 /// </summary>
 public static class RemotePathRemoteContractsValidator
 {
-    public static void ValidateRelative(string path)
+    public static void ValidateRelative(string path, bool allowConfiguredRoot = false)
     {
+        if (path is null)
+            throw new RemoteContractsValidationException("A relative path is required.");
+        if (allowConfiguredRoot && path.Length == 0) return;
         if (string.IsNullOrWhiteSpace(path) || path.Length > 4096
                                             || Path.IsPathRooted(path)
                                             || IsWindowsDriveQualified(path)
