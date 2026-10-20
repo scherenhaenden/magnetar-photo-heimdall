@@ -84,6 +84,10 @@ public sealed class DuplicateDecisionViewModel : INotifyPropertyChanged
 
     public void LoadGroups(IEnumerable<DuplicateGroupViewModel> groups)
     {
+        // Materialize before changing the current state. The input may be Groups itself,
+        // a deferred query over Groups, or an iterator that can fail while enumerating.
+        var replacementGroups = groups.ToArray();
+
         foreach (var group in Groups)
         {
             group.PropertyChanged -= Group_PropertyChanged;
@@ -91,11 +95,13 @@ public sealed class DuplicateDecisionViewModel : INotifyPropertyChanged
 
         Groups.Clear();
 
-        foreach (var group in groups)
+        foreach (var group in replacementGroups)
         {
             group.PropertyChanged += Group_PropertyChanged;
             Groups.Add(group);
         }
+
+        SelectedGroup = replacementGroups.FirstOrDefault();
         UpdateAggregateProperties();
     }
 

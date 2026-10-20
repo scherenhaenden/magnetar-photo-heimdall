@@ -40,7 +40,7 @@ public sealed class DuplicateGroupViewModel : INotifyPropertyChanged
 
     public bool IsResolved => Assets.Count(a => a.IsKeeper) == 1;
 
-    public long PotentialSavingsBytes => Assets.Count > 1
+    public long PotentialSavingsBytes => Assets.Count > 1 && Assets.Count(a => a.IsKeeper) == 1
         ? Assets.Where(a => !a.IsKeeper).Sum(a => a.SizeInBytes)
         : 0;
 

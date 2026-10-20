@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Magnetar.Photo.Heimdall.Desktop.ViewModels.DuplicateDecision;
 using Xunit;
@@ -69,17 +71,15 @@ public sealed class DuplicateDecisionViewModelTests
     public void Potential_savings_calculated_correctly()
     {
         var asset1 = new DuplicateAssetViewModel("path1", 1000, "SHA", "1", "hash");
-        var asset2 = new DuplicateAssetViewModel("path2", 1000, "SHA", "1", "hash");
-        var asset3 = new DuplicateAssetViewModel("path3", 1000, "SHA", "1", "hash");
+        var asset2 = new DuplicateAssetViewModel("path2", 1200, "SHA", "1", "hash");
+        var asset3 = new DuplicateAssetViewModel("path3", 1400, "SHA", "1", "hash");
         var group = new DuplicateGroupViewModel("g1", new[] { asset1, asset2, asset3 });
 
-        // No keeper selected, all are duplicates theoretically but until a keeper is chosen,
-        // all non-keepers count towards savings. Since no keeper is selected, all 3 are non-keepers: 3000
-        Assert.Equal(3000, group.PotentialSavingsBytes);
+        // An unresolved group has no confirmed removable files yet.
+        Assert.Equal(0, group.PotentialSavingsBytes);
 
-        asset1.IsKeeper = true;
-        // 1 keeper (1000), 2 non-keepers (2000). Potential savings should be 2000.
-        Assert.Equal(2000, group.PotentialSavingsBytes);
+        asset2.IsKeeper = true;
+        Assert.Equal(2400, group.PotentialSavingsBytes);
     }
 
     [Fact]
@@ -99,14 +99,85 @@ public sealed class DuplicateDecisionViewModelTests
         Assert.True(vm.HasData);
         Assert.Equal(2, vm.TotalGroupsCount);
         Assert.False(vm.AllGroupsResolved);
-        Assert.Equal(3000, vm.TotalPotentialSavingsBytes); // 2000 + 1000
+        Assert.Equal(0, vm.TotalPotentialSavingsBytes);
 
         asset1.IsKeeper = true;
         Assert.False(vm.AllGroupsResolved);
-        Assert.Equal(2000, vm.TotalPotentialSavingsBytes); // 1000 + 1000
+        Assert.Equal(1000, vm.TotalPotentialSavingsBytes);
 
         asset3.IsKeeper = true;
         Assert.True(vm.AllGroupsResolved);
-        Assert.Equal(1500, vm.TotalPotentialSavingsBytes); // 1000 + 500
+        Assert.Equal(1500, vm.TotalPotentialSavingsBytes);
+    }
+
+    [Fact]
+    public void Load_groups_selects_first_group_and_clears_selection_when_empty()
+    {
+        var first = new DuplicateGroupViewModel("first", new[]
+        {
+            new DuplicateAssetViewModel("path1", 100, "BLAKE3", "1", "hash1"),
+            new DuplicateAssetViewModel("path2", 100, "BLAKE3", "1", "hash1")
+        });
+        var second = new DuplicateGroupViewModel("second", new[]
+        {
+            new DuplicateAssetViewModel("path3", 200, "BLAKE3", "1", "hash2"),
+            new DuplicateAssetViewModel("path4", 200, "BLAKE3", "1", "hash2")
+        });
+        var vm = new DuplicateDecisionViewModel();
+
+        vm.LoadGroups(new[] { first, second });
+
+        Assert.Same(first, vm.SelectedGroup);
+
+        vm.LoadGroups(Array.Empty<DuplicateGroupViewModel>());
+
+        Assert.Null(vm.SelectedGroup);
+    }
+
+    [Fact]
+    public void Load_groups_supports_the_current_groups_collection_as_input()
+    {
+        var first = new DuplicateGroupViewModel("first", new[]
+        {
+            new DuplicateAssetViewModel("path1", 100, "BLAKE3", "1", "hash1"),
+            new DuplicateAssetViewModel("path2", 100, "BLAKE3", "1", "hash1")
+        });
+        var vm = new DuplicateDecisionViewModel();
+        vm.LoadGroups(new[] { first });
+
+        vm.LoadGroups(vm.Groups);
+
+        Assert.Single(vm.Groups);
+        Assert.Same(first, vm.Groups[0]);
+        Assert.Same(first, vm.SelectedGroup);
+    }
+
+    [Fact]
+    public void Load_groups_preserves_existing_state_when_input_enumeration_throws()
+    {
+        var existing = new DuplicateGroupViewModel("existing", new[]
+        {
+            new DuplicateAssetViewModel("path1", 100, "BLAKE3", "1", "hash1"),
+            new DuplicateAssetViewModel("path2", 100, "BLAKE3", "1", "hash1")
+        });
+        var replacement = new DuplicateGroupViewModel("replacement", new[]
+        {
+            new DuplicateAssetViewModel("path3", 200, "BLAKE3", "1", "hash2"),
+            new DuplicateAssetViewModel("path4", 200, "BLAKE3", "1", "hash2")
+        });
+        var vm = new DuplicateDecisionViewModel();
+        vm.LoadGroups(new[] { existing });
+
+        Assert.Throws<InvalidOperationException>(() => vm.LoadGroups(ThrowAfterYielding(replacement)));
+
+        Assert.Single(vm.Groups);
+        Assert.Same(existing, vm.Groups[0]);
+        Assert.Same(existing, vm.SelectedGroup);
+    }
+
+    private static IEnumerable<DuplicateGroupViewModel> ThrowAfterYielding(DuplicateGroupViewModel group)
+    {
+        yield return group;
+        throw new InvalidOperationException("Enumeration failed.");
     }
 }
